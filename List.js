@@ -1,10 +1,12 @@
 import React from "react";
 import PropTypes from "prop-types";
-import FontAwesomeIcon from "@fortawesome/react-fontawesome";
-import faSpinner from "@fortawesome/fontawesome-free-solid/faSpinner";
-import faSearch from "@fortawesome/fontawesome-free-solid/faSearch";
-import faTimes from "@fortawesome/fontawesome-free-solid/faTimes";
-import faEdit from "@fortawesome/fontawesome-free-solid/faEdit";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+   faSpinner,
+   faSearch,
+   faTimes,
+   faEdit
+} from "@fortawesome/free-solid-svg-icons";
 import { Table, InputGroup, Input, Button, InputGroupAddon } from "reactstrap";
 import { withTracker } from "meteor/react-meteor-data";
 
