@@ -1,10 +1,6 @@
 import React from "react";
 import PropTypes from "prop-types";
-import FontAwesomeIcon from "@fortawesome/react-fontawesome";
-import faSpinner from "@fortawesome/fontawesome-free-solid/faSpinner";
-import faSearch from "@fortawesome/fontawesome-free-solid/faSearch";
-import faTimes from "@fortawesome/fontawesome-free-solid/faTimes";
-import faEdit from "@fortawesome/fontawesome-free-solid/faEdit";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Table, InputGroup, Input, Button, InputGroupAddon } from "reactstrap";
 import { withTracker } from "meteor/react-meteor-data";
 import { get, last, upperFirst } from "lodash";
@@ -34,7 +30,7 @@ const List = props => {
                     <Input onChange={e => changeQuery(field, e.target.value)} />
                     <InputGroupAddon addonType="append">
                       <Button>
-                        <FontAwesomeIcon icon={faSearch} />
+                        <FontAwesomeIcon icon={"search"} />
                       </Button>
                     </InputGroupAddon>
                   </InputGroup>
@@ -48,7 +44,7 @@ const List = props => {
             <tr>
               <td>
                 <FontAwesomeIcon
-                  icon={faSpinner}
+                  icon={"spinner"}
                   className="faa-spin animated"
                 />
               </td>
@@ -72,7 +68,7 @@ const List = props => {
                         size="sm"
                         color="dark"
                       >
-                        <FontAwesomeIcon icon={faEdit} />
+                        <FontAwesomeIcon icon={"edit"} />
                       </Button>
                     </td>
                   ) : null}
@@ -84,7 +80,7 @@ const List = props => {
                         size="sm"
                         color="danger"
                       >
-                        <FontAwesomeIcon icon={faTimes} />
+                        <FontAwesomeIcon icon={"times"} />
                       </Button>
                     </td>
                   ) : null}
