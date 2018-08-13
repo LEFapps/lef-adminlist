@@ -1,6 +1,6 @@
 Package.describe({
   summary: "Display and sort data in admin list view",
-  version: "1.0.0",
+  version: "1.0.1",
   name: "lef:adminlist",
   git: "https://github.com/LEFapps/lef-adminlist"
 });
