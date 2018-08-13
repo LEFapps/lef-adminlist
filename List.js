@@ -7,7 +7,7 @@ import { get, last, upperFirst } from "lodash";
 
 import Pagination from "./Pagination";
 
-const List = props => {
+const AdminList = props => {
   const { loading, data, fields, changeQuery, edit, remove } = props;
   return (
     <div>
@@ -95,13 +95,13 @@ const List = props => {
   );
 };
 
-List.propTypes = {
+AdminList.propTypes = {
   loading: PropTypes.bool.isRequired,
   data: PropTypes.array.isRequired,
   fields: PropTypes.array.isRequired,
   query: PropTypes.object.isRequired,
   changeQuery: PropTypes.func.isRequired,
-  total: PropTypes.number.isRequired,
+  total: PropTypes.number.isRequired
 };
 
 const ListData = withTracker(
@@ -112,15 +112,15 @@ const ListData = withTracker(
       sort: {},
       limit: 20,
       skip: (page - 1) * 20,
-      fields: fieldObj,
+      fields: fieldObj
     };
     const handle = Meteor.subscribe(subscription, query, params);
     return {
       loading: !handle.ready(),
-      data: collection.find(query).fetch(),
+      data: collection.find(query).fetch()
     };
-  },
-)(List);
+  }
+)(AdminList);
 
 let searchTimer = undefined;
 
@@ -131,7 +131,7 @@ class ListContainer extends React.Component {
       page: 1,
       total: 0,
       query: {},
-      refreshQuery: false,
+      refreshQuery: false
     };
   }
   setPage = n => {
@@ -149,7 +149,7 @@ class ListContainer extends React.Component {
   };
   componentDidMount() {
     Meteor.call(this.props.getTotalCall, this.state.query, (e, r) =>
-      this.setState({ total: r }),
+      this.setState({ total: r })
     );
   }
   render() {
@@ -170,7 +170,7 @@ ListContainer.propTypes = {
   getTotalCall: PropTypes.string.isRequired,
   fields: PropTypes.arrayOf(PropTypes.string).isRequired,
   edit: PropTypes.func,
-  remove: PropTypes.func,
+  remove: PropTypes.func
 };
 
 export default ListContainer;
