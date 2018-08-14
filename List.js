@@ -17,7 +17,7 @@ const AdminList = props => {
             {fields.map((field, i) => {
               return (
                 <th key={i}>
-                  {titles[i] || upperFirst(last(field.split(".")))}
+                  {titles ? titles[i] : upperFirst(last(field.split(".")))}
                 </th>
               );
             })}
