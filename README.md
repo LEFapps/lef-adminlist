@@ -9,7 +9,9 @@ import List from "meteor/lef:adminlist"
 
 import Collection from "./somewhere"
 
-const fields = ["name", "email"]
+const fields = ["name", "emails.0.address"]
+
+const titles = ["naam", "emailadres"]
 
 const remove = doc => Meteor.call("removeDoc", doc._id)
 

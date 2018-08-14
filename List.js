@@ -8,14 +8,18 @@ import { get, last, upperFirst } from "lodash";
 import Pagination from "./Pagination";
 
 const AdminList = props => {
-  const { loading, data, fields, changeQuery, edit, remove } = props;
+  const { loading, data, fields, titles, changeQuery, edit, remove } = props;
   return (
     <div>
       <Table hover>
         <thead>
           <tr>
             {fields.map((field, i) => {
-              return <th key={i}>{upperFirst(last(field.split(".")))}</th>;
+              return (
+                <th key={i}>
+                  {titles[i] || upperFirst(last(field.split(".")))}
+                </th>
+              );
             })}
             {edit ? <th /> : null}
             {remove ? <th /> : null}
@@ -99,6 +103,7 @@ AdminList.propTypes = {
   loading: PropTypes.bool.isRequired,
   data: PropTypes.array.isRequired,
   fields: PropTypes.array.isRequired,
+  titels: PropTypes.array,
   query: PropTypes.object.isRequired,
   changeQuery: PropTypes.func.isRequired,
   total: PropTypes.number.isRequired
