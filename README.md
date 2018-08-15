@@ -2,7 +2,7 @@
 
 ## Usage
 
-Use the `<List />` component to create a list of data with filter and pagination functions.
+Use the `<List />` component to create a list of data with filter, pagination and sorting functions.
 
 ```JSX
 import List from "meteor/lef:adminlist"
@@ -45,7 +45,3 @@ Meteor.methods({
   }
 });
 ```
-
-## Todo
-
-- Add sorting methods
