@@ -5,6 +5,8 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faSearch,
   faSpinner,
+  faTimes,
+  faEdit,
   faSort,
   faSortAlphaUp,
   faSortAlphaDown
@@ -18,6 +20,8 @@ import Pagination from "./Pagination";
 fontawesome.library.add(
   faSearch,
   faSpinner,
+  faTimes,
+  faEdit,
   faSort,
   faSortAlphaUp,
   faSortAlphaDown
