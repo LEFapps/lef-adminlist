@@ -15,11 +15,18 @@ const titles = ["naam", "emailadres"]
 
 const remove = doc => Meteor.call("removeDoc", doc._id)
 
-const editModule = doc => {
+const edit = doc => {
   this.props.history.push(`${this.props.match.url}/edit/${doc._id}`);
 };
 
-<List collection={Collection} subscription="subscription" fields={fields} getTotalCall="totalDocs" remove={remove} edit={edit} />
+<List
+  collection={Collection}
+  subscription="subscription"
+  fields={fields}
+  getTotalCall="totalDocs"
+  remove={remove}
+  edit={edit}
+/>
 ```
 
 ## Server side
