@@ -37,7 +37,8 @@ const AdminList = props => {
     changeQuery,
     changeSort,
     edit,
-    remove
+    remove,
+    extraColumns
   } = props;
   const sortIcon = field => {
     switch (sort[field]) {
@@ -68,6 +69,9 @@ const AdminList = props => {
             })}
             {edit ? <th /> : null}
             {remove ? <th /> : null}
+            {extraColumns
+              ? extraColumns.map((column, i) => <td key={`${i}-column`} />)
+              : null}
           </tr>
         </thead>
         <tbody>
@@ -88,6 +92,11 @@ const AdminList = props => {
             })}
             {edit ? <td /> : null}
             {remove ? <td /> : null}
+            {extraColumns
+              ? extraColumns.map((column, i) => (
+                  <td key={`${i}-column-search`} />
+                ))
+              : null}
           </tr>
           {loading ? (
             <tr>
@@ -133,6 +142,13 @@ const AdminList = props => {
                       </Button>
                     </td>
                   ) : null}
+                  {extraColumns
+                    ? extraColumns.map((column, i) => {
+                        return (
+                          <td key={`${i}c-${item._id}`}>{column(item)}</td>
+                        );
+                      })
+                    : null}
                 </tr>
               );
             })
@@ -232,7 +248,8 @@ ListContainer.propTypes = {
   getTotalCall: PropTypes.string.isRequired,
   fields: PropTypes.arrayOf(PropTypes.string).isRequired,
   edit: PropTypes.func,
-  remove: PropTypes.func
+  remove: PropTypes.func,
+  extraColumns: PropTypes.array
 };
 
 export default ListContainer;

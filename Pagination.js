@@ -8,7 +8,7 @@ import PropTypes from "prop-types";
 
 const Pagination = ({ total, page, setPage }) => {
   if (!total) return null;
-  if (0 >= total <= 20) return null;
+  if (0 <= total && total <= 20) return null;
   else {
     const numberOfPages = Math.ceil(total / 20);
     let startRange = Math.ceil(page / 10) * 10 - 9;

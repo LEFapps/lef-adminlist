@@ -26,6 +26,7 @@ const edit = doc => {
   getTotalCall="totalDocs"
   remove={remove}
   edit={edit}
+  extraColumns={[doc => doc._id, "Hello"]}
 />
 ```
 
