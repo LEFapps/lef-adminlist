@@ -1,7 +1,7 @@
-import React from "react";
-import PropTypes from "prop-types";
-import fontawesome from "@fortawesome/fontawesome";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import React from 'react'
+import PropTypes from 'prop-types'
+import fontawesome from '@fortawesome/fontawesome'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {
   faSearch,
   faSpinner,
@@ -9,13 +9,14 @@ import {
   faEdit,
   faSort,
   faSortAlphaUp,
-  faSortAlphaDown
-} from "@fortawesome/free-solid-svg-icons";
-import { Table, InputGroup, Input, Button, InputGroupAddon } from "reactstrap";
-import { withTracker } from "meteor/react-meteor-data";
-import { get, last, upperFirst } from "lodash";
+  faSortAlphaDown,
+  faCheck
+} from '@fortawesome/free-solid-svg-icons'
+import { Table, InputGroup, Input, Button, InputGroupAddon } from 'reactstrap'
+import { withTracker } from 'meteor/react-meteor-data'
+import { get, last, upperFirst } from 'lodash'
 
-import Pagination from "./Pagination";
+import Pagination from './Pagination'
 
 fontawesome.library.add(
   faSearch,
@@ -24,8 +25,9 @@ fontawesome.library.add(
   faEdit,
   faSort,
   faSortAlphaUp,
-  faSortAlphaDown
-);
+  faSortAlphaDown,
+  faCheck
+)
 
 const AdminList = props => {
   const {
@@ -39,17 +41,17 @@ const AdminList = props => {
     edit,
     remove,
     extraColumns
-  } = props;
+  } = props
   const sortIcon = field => {
     switch (sort[field]) {
       case -1:
-        return "sort-alpha-up";
+        return 'sort-alpha-up'
       case 1:
-        return "sort-alpha-down";
+        return 'sort-alpha-down'
       default:
-        return "sort";
+        return 'sort'
     }
-  };
+  }
   return (
     <div>
       <Table hover>
@@ -59,13 +61,14 @@ const AdminList = props => {
               return (
                 <th key={i}>
                   <>
-                    {titles ? titles[i] : upperFirst(last(field.split(".")))}{" "}
-                    <Button onClick={() => changeSort(field)} outline size="sm">
+                    {titles ? titles[i] : upperFirst(last(field.split('.')))}
+                    {' '}
+                    <Button onClick={() => changeSort(field)} outline size='sm'>
                       <FontAwesomeIcon icon={sortIcon(field)} />
                     </Button>
                   </>
                 </th>
-              );
+              )
             })}
             {edit ? <th /> : null}
             {remove ? <th /> : null}
@@ -81,84 +84,87 @@ const AdminList = props => {
                 <td key={`search-${field}`}>
                   <InputGroup>
                     <Input onChange={e => changeQuery(field, e.target.value)} />
-                    <InputGroupAddon addonType="append">
+                    <InputGroupAddon addonType='append'>
                       <Button>
-                        <FontAwesomeIcon icon={"search"} />
+                        <FontAwesomeIcon icon={'search'} />
                       </Button>
                     </InputGroupAddon>
                   </InputGroup>
                 </td>
-              );
+              )
             })}
             {edit ? <td /> : null}
             {remove ? <td /> : null}
             {extraColumns
               ? extraColumns.map((column, i) => (
-                  <td key={`${i}-column-search`} />
+                <td key={`${i}-column-search`} />
                 ))
               : null}
           </tr>
-          {loading ? (
-            <tr>
+          {loading
+            ? <tr>
               <td>
                 <FontAwesomeIcon
-                  icon={"spinner"}
-                  className="faa-spin animated"
-                />
+                  icon={'spinner'}
+                  className='faa-spin animated'
+                  />
               </td>
             </tr>
-          ) : (
-            data.map(item => {
+            : data.map(item => {
               return (
                 <tr key={item._id}>
                   {fields.map(field => {
+                    const value = get(item, field, '')
                     return (
                       <td key={`${item._id}-${field}`}>
-                        {get(item, field, "")}
+                        {typeof value === 'boolean'
+                            ? value
+                                ? <FontAwesomeIcon icon='check' />
+                                : <FontAwesomeIcon icon='times' />
+                            : value}
                       </td>
-                    );
+                    )
                   })}
-                  {edit ? (
-                    <td>
-                      <Button
-                        onClick={() => edit(item)}
-                        outline
-                        size="sm"
-                        color="dark"
-                      >
-                        <FontAwesomeIcon icon={"edit"} />
-                      </Button>
-                    </td>
-                  ) : null}
-                  {remove ? (
-                    <td>
-                      <Button
-                        onClick={() => remove(item)}
-                        outline
-                        size="sm"
-                        color="danger"
-                      >
-                        <FontAwesomeIcon icon={"times"} />
-                      </Button>
-                    </td>
-                  ) : null}
+                  {edit
+                      ? <td>
+                        <Button
+                          onClick={() => edit(item)}
+                          outline
+                          size='sm'
+                          color='dark'
+                          >
+                          <FontAwesomeIcon icon={'edit'} />
+                        </Button>
+                      </td>
+                      : null}
+                  {remove
+                      ? <td>
+                        <Button
+                          onClick={() => remove(item)}
+                          outline
+                          size='sm'
+                          color='danger'
+                          >
+                          <FontAwesomeIcon icon={'times'} />
+                        </Button>
+                      </td>
+                      : null}
                   {extraColumns
-                    ? extraColumns.map((column, i) => {
+                      ? extraColumns.map((column, i) => {
                         return (
                           <td key={`${i}c-${item._id}`}>{column(item)}</td>
-                        );
+                        )
                       })
-                    : null}
+                      : null}
                 </tr>
-              );
-            })
-          )}
+              )
+            })}
         </tbody>
       </Table>
       <Pagination {...props} />
     </div>
-  );
-};
+  )
+}
 
 AdminList.propTypes = {
   loading: PropTypes.bool.isRequired,
@@ -168,68 +174,68 @@ AdminList.propTypes = {
   query: PropTypes.object.isRequired,
   changeQuery: PropTypes.func.isRequired,
   total: PropTypes.number.isRequired
-};
+}
 
 const ListData = withTracker(
   ({ collection, subscription, page, query, sort, fields }) => {
-    const fieldObj = {};
-    fields.map(field => (fieldObj[field] = 1));
+    const fieldObj = {}
+    fields.map(field => (fieldObj[field] = 1))
     const params = {
       sort,
       limit: 20,
       skip: (page - 1) * 20,
       fields: fieldObj
-    };
-    const handle = Meteor.subscribe(subscription, query, params);
+    }
+    const handle = Meteor.subscribe(subscription, query, params)
     return {
       loading: !handle.ready(),
       data: collection.find(query, { sort }).fetch()
-    };
+    }
   }
-)(AdminList);
+)(AdminList)
 
-let searchTimer = undefined;
+let searchTimer
 
 class ListContainer extends React.Component {
-  constructor(props) {
-    super(props);
+  constructor (props) {
+    super(props)
     this.state = {
       page: 1,
       total: 0,
       query: {},
       sort: {},
       refreshQuery: false
-    };
+    }
   }
   setPage = n => {
-    this.setState({ page: n });
-  };
+    this.setState({ page: n })
+  }
   changeQuery = (key, value) => {
-    Meteor.clearTimeout(searchTimer);
+    Meteor.clearTimeout(searchTimer)
     searchTimer = Meteor.setTimeout(() => {
-      const { query } = this.state;
-      query[key] = value;
-      if (value == "") delete query[key];
-      this.setState({ query });
-      this.setState({ refreshQuery: !this.state.refreshQuery });
-    }, 500);
-  };
+      const { query } = this.state
+      query[key] = value
+      if (value == '') delete query[key]
+      this.setState({ query })
+      this.setState({ refreshQuery: !this.state.refreshQuery })
+    }, 500)
+  }
   changeSort = key => {
-    const sort = {};
+    const sort = {}
     if (this.state.sort[key]) {
-      sort[key] = this.state.sort[key] * -1;
+      sort[key] = this.state.sort[key] * -1
     } else {
-      sort[key] = 1;
+      sort[key] = 1
     }
-    this.setState({ sort });
-    this.setState({ refreshQuery: !this.state.refreshQuery });
-  };
-  componentDidMount() {
+    this.setState({ sort })
+    this.setState({ refreshQuery: !this.state.refreshQuery })
+  }
+  componentDidMount () {
     Meteor.call(this.props.getTotalCall, this.state.query, (e, r) =>
       this.setState({ total: r })
-    );
+    )
   }
-  render() {
+  render () {
     return (
       <ListData
         {...this.state}
@@ -238,7 +244,7 @@ class ListContainer extends React.Component {
         changeQuery={this.changeQuery}
         changeSort={this.changeSort}
       />
-    );
+    )
   }
 }
 
@@ -250,6 +256,6 @@ ListContainer.propTypes = {
   edit: PropTypes.func,
   remove: PropTypes.func,
   extraColumns: PropTypes.array
-};
+}
 
-export default ListContainer;
+export default ListContainer
