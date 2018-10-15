@@ -26,7 +26,10 @@ const edit = doc => {
   getTotalCall="totalDocs"
   remove={remove}
   edit={edit}
-  extraColumns={[doc => doc._id, "Hello"]}
+  extraColumns={[
+    [({firstname, lastname}) => firstname + ' ' + lastname, "Full Name"],
+    [({percentage}) => Math.round(percentage*100), "Score"],
+  ]}
 />
 ```
 

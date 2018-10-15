@@ -70,11 +70,11 @@ const AdminList = props => {
                 </th>
               )
             })}
+            {extraColumns
+              ? extraColumns.map((column, i) => <th key={`${i}-column`}>{column[1]}</th>)
+              : null}
             {edit ? <th /> : null}
             {remove ? <th /> : null}
-            {extraColumns
-              ? extraColumns.map((column, i) => <td key={`${i}-column`} />)
-              : null}
           </tr>
         </thead>
         <tbody>
@@ -93,13 +93,13 @@ const AdminList = props => {
                 </td>
               )
             })}
-            {edit ? <td /> : null}
-            {remove ? <td /> : null}
             {extraColumns
               ? extraColumns.map((column, i) => (
                 <td key={`${i}-column-search`} />
-                ))
+              ))
               : null}
+            {edit ? <td /> : null}
+            {remove ? <td /> : null}
           </tr>
           {loading
             ? <tr>
@@ -125,6 +125,13 @@ const AdminList = props => {
                       </td>
                     )
                   })}
+                  {extraColumns
+                      ? extraColumns.map((column, i) => {
+                        return (
+                          <td key={`${i}c-${item._id}`}>{column[0](item)}</td>
+                        )
+                      })
+                      : null}
                   {edit
                       ? <td>
                         <Button
@@ -148,13 +155,6 @@ const AdminList = props => {
                           <FontAwesomeIcon icon={'times'} />
                         </Button>
                       </td>
-                      : null}
-                  {extraColumns
-                      ? extraColumns.map((column, i) => {
-                        return (
-                          <td key={`${i}c-${item._id}`}>{column(item)}</td>
-                        )
-                      })
                       : null}
                 </tr>
               )
