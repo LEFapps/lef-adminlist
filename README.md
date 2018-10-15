@@ -19,6 +19,19 @@ const edit = doc => {
   this.props.history.push(`${this.props.match.url}/edit/${doc._id}`);
 };
 
+const extraColumns = [
+  [
+    ({ firstname, lastname }) => firstname + ' ' + lastname,
+    "Full Name", // title of custom column
+    ['firstname','lastname'] // list of fields needed for this column
+  ],
+  [
+    doc => Math.round(doc.percentage * 100),
+    "Score",
+    ['percentage']
+  ],
+]
+
 <List
   collection={Collection}
   subscription="subscription"
@@ -26,10 +39,7 @@ const edit = doc => {
   getTotalCall="totalDocs"
   remove={remove}
   edit={edit}
-  extraColumns={[
-    [({firstname, lastname}) => firstname + ' ' + lastname, "Full Name"],
-    [({percentage}) => Math.round(percentage*100), "Score"],
-  ]}
+  extraColumns={extraColumns}
 />
 ```
 

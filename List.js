@@ -126,11 +126,7 @@ const AdminList = props => {
                     )
                   })}
                   {extraColumns
-                      ? extraColumns.map((column, i) => {
-                        return (
-                          <td key={`${i}c-${item._id}`}>{column[0](item)}</td>
-                        )
-                      })
+                      ? extraColumns.map((column, i) => <td key={`${i}c-${item._id}`}>{column[0](item)}</td>)
                       : null}
                   {edit
                       ? <td>
@@ -177,9 +173,10 @@ AdminList.propTypes = {
 }
 
 const ListData = withTracker(
-  ({ collection, subscription, page, query, sort, fields }) => {
+  ({ collection, subscription, page, query, sort, fields, extraColumns }) => {
     const fieldObj = {}
     fields.map(field => (fieldObj[field] = 1))
+    if (extraColumns) (extraColumns || []).map(col => ((col[2] || []).map(f => fieldObj[f] = 1)))
     const params = {
       sort,
       limit: 20,
