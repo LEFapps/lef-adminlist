@@ -184,7 +184,6 @@ const ListData = withTracker(
       fields: fieldObj
     }
     const mergedQuery = merge(query, defaultQuery)
-    console.log(mergedQuery)
     const handle = Meteor.subscribe(subscription, mergedQuery, params)
     return {
       loading: !handle.ready(),
