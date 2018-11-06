@@ -14,7 +14,7 @@ import {
 } from '@fortawesome/free-solid-svg-icons'
 import { Table, InputGroup, Input, Button, InputGroupAddon } from 'reactstrap'
 import { withTracker } from 'meteor/react-meteor-data'
-import { get, last, upperFirst } from 'lodash'
+import { get, last, upperFirst, merge } from 'lodash'
 
 import Pagination from './Pagination'
 
@@ -173,7 +173,7 @@ AdminList.propTypes = {
 }
 
 const ListData = withTracker(
-  ({ collection, subscription, page, query, sort, fields, extraColumns }) => {
+  ({ collection, subscription, page, defaultQuery = {}, query, sort, fields, extraColumns }) => {
     const fieldObj = {}
     fields.map(field => (fieldObj[field] = 1))
     if (extraColumns) (extraColumns || []).map(col => ((col[2] || []).map(f => fieldObj[f] = 1)))
@@ -183,10 +183,12 @@ const ListData = withTracker(
       skip: (page - 1) * 20,
       fields: fieldObj
     }
-    const handle = Meteor.subscribe(subscription, query, params)
+    const mergedQuery = merge(query, defaultQuery)
+    console.log(mergedQuery)
+    const handle = Meteor.subscribe(subscription, mergedQuery, params)
     return {
       loading: !handle.ready(),
-      data: collection.find(query, { sort }).fetch()
+      data: collection.find(mergedQuery, { sort }).fetch()
     }
   }
 )(AdminList)
@@ -252,7 +254,8 @@ ListContainer.propTypes = {
   fields: PropTypes.arrayOf(PropTypes.string).isRequired,
   edit: PropTypes.func,
   remove: PropTypes.func,
-  extraColumns: PropTypes.array
+  extraColumns: PropTypes.array,
+  defaultQuery: PropTypes.object
 }
 
 export default ListContainer

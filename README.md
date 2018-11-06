@@ -5,15 +5,12 @@
 Use the `<List />` component to create a list of data with filter, pagination and sorting functions.
 
 ```JSX
-import List from "meteor/lef:adminlist"
+import List from 'meteor/lef:adminlist'
+import Collection from './somewhere'
 
-import Collection from "./somewhere"
-
-const fields = ["name", "emails.0.address"]
-
-const titles = ["naam", "emailadres"]
-
-const remove = doc => Meteor.call("removeDoc", doc._id)
+const fields = ['name', 'emails.0.address']
+const titles = ['naam', 'emailadres']
+const remove = doc => Meteor.call('removeDoc', doc._id)
 
 const edit = doc => {
   this.props.history.push(`${this.props.match.url}/edit/${doc._id}`);
@@ -22,21 +19,22 @@ const edit = doc => {
 const extraColumns = [
   [
     ({ firstname, lastname }) => firstname + ' ' + lastname,
-    "Full Name", // title of custom column
+    'Full Name', // title of custom column
     ['firstname','lastname'] // list of fields needed for this column
   ],
   [
     doc => Math.round(doc.percentage * 100),
-    "Score",
+    'Score',
     ['percentage']
   ],
 ]
 
 <List
   collection={Collection}
-  subscription="subscription"
+  subscription='subscription'
   fields={fields}
-  getTotalCall="totalDocs"
+  getTotalCall='totalDocs'
+  defaultQuery={{ type: 'only_show_this_type' }}
   remove={remove}
   edit={edit}
   extraColumns={extraColumns}
