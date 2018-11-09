@@ -14,7 +14,7 @@ import {
 } from '@fortawesome/free-solid-svg-icons'
 import { Table, InputGroup, Input, Button, InputGroupAddon } from 'reactstrap'
 import { withTracker } from 'meteor/react-meteor-data'
-import { get, last, upperFirst, merge } from 'lodash'
+import { get, last, upperFirst, forEach } from 'lodash'
 
 import Pagination from './Pagination'
 
@@ -183,11 +183,13 @@ const ListData = withTracker(
       skip: (page - 1) * 20,
       fields: fieldObj
     }
-    const mergedQuery = merge(query, defaultQuery)
-    const handle = Meteor.subscribe(subscription, mergedQuery, params)
+    forEach(defaultQuery, (v, k) => {
+      if (!!v) { query[k] = v }
+    })
+    const handle = Meteor.subscribe(subscription, query, params)
     return {
       loading: !handle.ready(),
-      data: collection.find(mergedQuery, { sort }).fetch()
+      data: collection.find(query, { sort }).fetch()
     }
   }
 )(AdminList)
