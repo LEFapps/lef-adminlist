@@ -14,7 +14,7 @@ import {
 } from '@fortawesome/free-solid-svg-icons'
 import { Table, InputGroup, Input, Button, InputGroupAddon } from 'reactstrap'
 import { withTracker } from 'meteor/react-meteor-data'
-import { get, last, upperFirst, forEach } from 'lodash'
+import { get, last, upperFirst, forEach, pickBy } from 'lodash'
 
 import Pagination from './Pagination'
 
@@ -83,7 +83,7 @@ const AdminList = props => {
               return (
                 <td key={`search-${field}`}>
                   <InputGroup>
-                    <Input onChange={e => changeQuery(field, e.target.value)} />
+                    <Input onKeyUp={e => changeQuery(field, e.target.value)} />
                     <InputGroupAddon addonType='append'>
                       <Button>
                         <FontAwesomeIcon icon={'search'} />
@@ -214,10 +214,10 @@ class ListContainer extends React.Component {
     Meteor.clearTimeout(searchTimer)
     searchTimer = Meteor.setTimeout(() => {
       const { query } = this.state
-      query[key] = value
+      query[key] = { $regex: value, $options: 'i' }
       if (value == '') delete query[key]
-      this.setState({ query })
-      this.setState({ refreshQuery: !this.state.refreshQuery })
+      this.setState(prevState => ({query, refreshQuery: !prevState.refreshQuery }))
+
     }, 500)
   }
   changeSort = key => {
@@ -227,8 +227,7 @@ class ListContainer extends React.Component {
     } else {
       sort[key] = 1
     }
-    this.setState({ sort })
-    this.setState({ refreshQuery: !this.state.refreshQuery })
+    this.setState(prevState => ({sort, refreshQuery: !prevState.refreshQuery }))
   }
   componentDidMount () {
     Meteor.call(this.props.getTotalCall, this.state.query, (e, r) =>
@@ -238,8 +237,8 @@ class ListContainer extends React.Component {
   render () {
     return (
       <ListData
-        {...this.state}
         {...this.props}
+        {...this.state}
         setPage={this.setPage}
         changeQuery={this.changeQuery}
         changeSort={this.changeSort}
