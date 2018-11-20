@@ -1,6 +1,6 @@
 Package.describe({
   summary: 'Display and sort data in admin list view',
-  version: '1.1.8',
+  version: '2.0.0',
   name: 'lef:adminlist',
   git: 'https://github.com/LEFapps/lef-adminlist'
 })
@@ -12,8 +12,8 @@ Package.onUse(api => {
 
 Npm.depends({
   react: '16.5.0',
-  reactstrap: '6.4.0',
-  'prop-types': '15.6.1',
+  reactstrap: '6.5.0',
+  'prop-types': '15.6.2',
   '@fortawesome/fontawesome': '1.1.8',
   '@fortawesome/fontawesome-svg-core': '1.2.0',
   '@fortawesome/free-solid-svg-icons': '5.2.0',

@@ -31,6 +31,7 @@ const extraColumns = [
 
 <List
   collection={Collection}
+  getIdsCall='getIds'
   subscription='subscription'
   fields={fields}
   getTotalCall='totalDocs'
@@ -43,11 +44,21 @@ const extraColumns = [
 
 ## Server side
 
+### Getting the id's
+
+```JS
+Meteor.methods({
+  getIds: (query, params) => {
+    return Collection.find(query, params).map(({ _id }) => _id)
+  }
+})
+```
+
 ### Publish function
 
 The publish function server side should look like this.
 
-```JSX
+```JS
 Meteor.publish("subscription", (query, params = {}) => {
   return Collection.find(query, params);
 });

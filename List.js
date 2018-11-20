@@ -60,18 +60,20 @@ const AdminList = props => {
             {fields.map((field, i) => {
               return (
                 <th key={i}>
-                  <>
+                  <span>
                     {titles ? titles[i] : upperFirst(last(field.split('.')))}
                     {' '}
                     <Button onClick={() => changeSort(field)} outline size='sm'>
                       <FontAwesomeIcon icon={sortIcon(field)} />
                     </Button>
-                  </>
+                  </span>
                 </th>
               )
             })}
             {extraColumns
-              ? extraColumns.map((column, i) => <th key={`${i}-column`}>{column[1]}</th>)
+              ? extraColumns.map((column, i) => (
+                <th key={`${i}-column`}>{column[1]}</th>
+                ))
               : null}
             {edit ? <th /> : null}
             {remove ? <th /> : null}
@@ -96,7 +98,7 @@ const AdminList = props => {
             {extraColumns
               ? extraColumns.map((column, i) => (
                 <td key={`${i}-column-search`} />
-              ))
+                ))
               : null}
             {edit ? <td /> : null}
             {remove ? <td /> : null}
@@ -126,7 +128,9 @@ const AdminList = props => {
                     )
                   })}
                   {extraColumns
-                      ? extraColumns.map((column, i) => <td key={`${i}c-${item._id}`}>{column[0](item)}</td>)
+                      ? extraColumns.map((column, i) => (
+                        <td key={`${i}c-${item._id}`}>{column[0](item)}</td>
+                        ))
                       : null}
                   {edit
                       ? <td>
@@ -134,8 +138,7 @@ const AdminList = props => {
                           onClick={() => edit(item)}
                           outline
                           size='sm'
-                          color='dark'
-                          >
+                          color='dark'>
                           <FontAwesomeIcon icon={'edit'} />
                         </Button>
                       </td>
@@ -146,8 +149,7 @@ const AdminList = props => {
                           onClick={() => remove(item)}
                           outline
                           size='sm'
-                          color='danger'
-                          >
+                          color='danger'>
                           <FontAwesomeIcon icon={'times'} />
                         </Button>
                       </td>
@@ -173,23 +175,21 @@ AdminList.propTypes = {
 }
 
 const ListData = withTracker(
-  ({ collection, subscription, page, defaultQuery = {}, query, sort, fields, extraColumns }) => {
+  ({ collection, subscription, sort, fields, extraColumns, ids }) => {
     const fieldObj = {}
     fields.map(field => (fieldObj[field] = 1))
-    if (extraColumns) (extraColumns || []).map(col => ((col[2] || []).map(f => fieldObj[f] = 1)))
-    const params = {
-      sort,
-      limit: 20,
-      skip: (page - 1) * 20,
-      fields: fieldObj
+    if (extraColumns) {
+      ;(extraColumns || [])
+        .map(col => (col[2] || []).map(f => (fieldObj[f] = 1)))
     }
-    forEach(defaultQuery, (v, k) => {
-      if (!!v) { query[k] = v }
-    })
-    const handle = Meteor.subscribe(subscription, query, params)
+    const handle = Meteor.subscribe(
+      subscription,
+      { _id: { $in: ids || [] } },
+      { fields: fieldObj }
+    )
     return {
       loading: !handle.ready(),
-      data: collection.find(query, { sort }).fetch()
+      data: collection.find({ _id: { $in: ids || [] } }, { sort }).fetch()
     }
   }
 )(AdminList)
@@ -203,9 +203,33 @@ class ListContainer extends React.Component {
       page: 1,
       total: 0,
       query: {},
+      ids: null,
       sort: {},
       refreshQuery: false
     }
+  }
+  getIds = () => {
+    const { page, query, sort } = this.state
+    const { defaultQuery = {} } = this.props
+    const params = {
+      sort,
+      limit: 20,
+      skip: (page - 1) * 20
+    }
+    forEach(defaultQuery, (v, k) => {
+      if (v) {
+        query[k] = v
+      }
+    })
+    Meteor.call(this.props.getIdsCall, query, params, (e, r) =>
+      this.setState({ ids: r })
+    )
+    this.getTotal()
+  }
+  getTotal = () => {
+    Meteor.call(this.props.getTotalCall, this.state.query, (e, r) =>
+      this.setState({ total: r })
+    )
   }
   setPage = n => {
     this.setState({ page: n })
@@ -216,8 +240,11 @@ class ListContainer extends React.Component {
       const { query } = this.state
       query[key] = { $regex: value, $options: 'i' }
       if (value == '') delete query[key]
-      this.setState(prevState => ({query, refreshQuery: !prevState.refreshQuery }))
-
+      this.setState(prevState => ({
+        query,
+        refreshQuery: !prevState.refreshQuery
+      }))
+      this.getIds()
     }, 500)
   }
   changeSort = key => {
@@ -227,12 +254,13 @@ class ListContainer extends React.Component {
     } else {
       sort[key] = 1
     }
-    this.setState(prevState => ({sort, refreshQuery: !prevState.refreshQuery }))
+    this.setState(prevState => ({
+      sort,
+      refreshQuery: !prevState.refreshQuery
+    }))
   }
   componentDidMount () {
-    Meteor.call(this.props.getTotalCall, this.state.query, (e, r) =>
-      this.setState({ total: r })
-    )
+    this.getIds()
   }
   render () {
     return (
@@ -249,6 +277,7 @@ class ListContainer extends React.Component {
 
 ListContainer.propTypes = {
   collection: PropTypes.object.isRequired,
+  getIdsCall: PropTypes.string.isRequired,
   subscription: PropTypes.string.isRequired,
   getTotalCall: PropTypes.string.isRequired,
   fields: PropTypes.arrayOf(PropTypes.string).isRequired,
