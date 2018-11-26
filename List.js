@@ -60,7 +60,7 @@ const AdminList = props => {
             {fields.map((field, i) => {
               return (
                 <th key={i}>
-                  <span>
+                  <span style={{whiteSpace: 'nowrap'}}>
                     {titles ? titles[i] : upperFirst(last(field.split('.')))}
                     {' '}
                     <Button onClick={() => changeSort(field)} outline size='sm'>
@@ -84,7 +84,7 @@ const AdminList = props => {
             {fields.map(field => {
               return (
                 <td key={`search-${field}`}>
-                  <InputGroup>
+                  <InputGroup style={{flexWrap: 'nowrap'}}>
                     <Input onKeyUp={e => changeQuery(field, e.target.value)} />
                     <InputGroupAddon addonType='append'>
                       <Button>
@@ -232,7 +232,7 @@ class ListContainer extends React.Component {
     )
   }
   setPage = n => {
-    this.setState({ page: n })
+    this.setState({ page: n }, () => this.getIds())
   }
   changeQuery = (key, value) => {
     Meteor.clearTimeout(searchTimer)
@@ -241,6 +241,7 @@ class ListContainer extends React.Component {
       query[key] = { $regex: value, $options: 'i' }
       if (value == '') delete query[key]
       this.setState(prevState => ({
+        page: 1,
         query,
         refreshQuery: !prevState.refreshQuery
       }))
@@ -255,6 +256,7 @@ class ListContainer extends React.Component {
       sort[key] = 1
     }
     this.setState(prevState => ({
+      page: 1,
       sort,
       refreshQuery: !prevState.refreshQuery
     }))
