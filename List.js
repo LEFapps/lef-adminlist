@@ -244,8 +244,7 @@ class ListContainer extends React.Component {
         page: 1,
         query,
         refreshQuery: !prevState.refreshQuery
-      }))
-      this.getIds()
+      }), () => this.getIds() )
     }, 500)
   }
   changeSort = key => {
@@ -259,7 +258,7 @@ class ListContainer extends React.Component {
       page: 1,
       sort,
       refreshQuery: !prevState.refreshQuery
-    }))
+    }), () => this.getIds() )
   }
   componentDidMount () {
     this.getIds()
