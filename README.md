@@ -17,16 +17,20 @@ const edit = doc => {
 };
 
 const extraColumns = [
-  [
-    ({ firstname, lastname }) => firstname + ' ' + lastname,
-    'Full Name', // title of custom column
-    ['firstname','lastname'] // list of fields needed for this column
-  ],
-  [
-    doc => Math.round(doc.percentage * 100),
-    'Score',
-    ['percentage']
-  ],
+  {
+    value: ({ firstname, lastname }) => firstname + ' ' + lastname,
+    label: 'Full Name', // title of custom column
+    fields: ['firstname','lastname'] // list of fields needed for this column
+  },
+  {
+    value: doc => Math.round(doc.percentage * 100),
+    label: 'Score',
+    fields: ['percentage'],
+    search: { // search definition for custom columns
+      fields: 'percentage', // field(s) on which to search (string or array)
+      transformValue: value => value / 100 // basically the reverse logic of value
+    }
+  },
 ]
 
 <List

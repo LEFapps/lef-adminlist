@@ -14,7 +14,7 @@ import {
 } from '@fortawesome/free-solid-svg-icons'
 import { Table, InputGroup, Input, Button, InputGroupAddon } from 'reactstrap'
 import { withTracker } from 'meteor/react-meteor-data'
-import { get, last, upperFirst, forEach, pickBy } from 'lodash'
+import { get, set, last, upperFirst, forEach, isArray, defaults } from 'lodash'
 
 import Pagination from './Pagination'
 
@@ -29,6 +29,17 @@ fontawesome.library.add(
   faCheck
 )
 
+const xColConvert = xcols => xcols.map(xcol => {
+  if (isArray(xcol)) {
+    return {
+      value: xcol[0],
+      label: xcol[1] || '',
+      fields: xcol[2] || [],
+      search: xcol[3]
+    }
+  } else return defaults(xcol, { value: () => '', label: '', fields: [] })
+})
+
 const AdminList = props => {
   const {
     loading,
@@ -42,6 +53,7 @@ const AdminList = props => {
     remove,
     extraColumns
   } = props
+  const columns = xColConvert(extraColumns)
   const sortIcon = field => {
     switch (sort[field]) {
       case -1:
@@ -63,16 +75,16 @@ const AdminList = props => {
                   <span style={{whiteSpace: 'nowrap'}}>
                     {titles ? titles[i] : upperFirst(last(field.split('.')))}
                     {' '}
-                    <Button onClick={() => changeSort(field)} outline size='sm'>
+                    <Button onClick={() => changeSort(field)} outline size='sm' className={'float-right'}>
                       <FontAwesomeIcon icon={sortIcon(field)} />
                     </Button>
                   </span>
                 </th>
               )
             })}
-            {extraColumns
-              ? extraColumns.map((column, i) => (
-                <th key={`${i}-column`}>{column[1]}</th>
+            {columns
+              ? columns.map((column, i) => (
+                <th key={`${i}-column`}>{column.label}</th>
                 ))
               : null}
             {edit ? <th /> : null}
@@ -95,9 +107,20 @@ const AdminList = props => {
                 </td>
               )
             })}
-            {extraColumns
-              ? extraColumns.map((column, i) => (
-                <td key={`${i}-column-search`} />
+            {columns
+              ? columns.map((column, i) => (
+                column.search ?
+                  column.search.fields && column.search.value ?
+                  <td key={`${i}-column-search`}>
+                    <InputGroup style={{ flexWrap: 'nowrap' }}>
+                        <Input onKeyUp={e => changeQuery(column.search.fields, column.search.value(e.target.value))} />
+                      <InputGroupAddon addonType='append'>
+                        <Button>
+                          <FontAwesomeIcon icon={'search'} />
+                        </Button>
+                      </InputGroupAddon>
+                    </InputGroup>
+                    </td> : <td key={`${i}-column-search`} /> : <td key={`${i}-column-search`} />
                 ))
               : null}
             {edit ? <td /> : null}
@@ -127,9 +150,9 @@ const AdminList = props => {
                       </td>
                     )
                   })}
-                  {extraColumns
-                      ? extraColumns.map((column, i) => (
-                        <td key={`${i}c-${item._id}`}>{column[0](item)}</td>
+                  {columns
+                      ? columns.map((column, i) => (
+                        <td key={`${i}c-${item._id}`}>{column.value(item)}</td>
                         ))
                       : null}
                   {edit
@@ -176,11 +199,12 @@ AdminList.propTypes = {
 
 const ListData = withTracker(
   ({ collection, subscription, sort, fields, extraColumns, ids }) => {
+    const columns = xColConvert(extraColumns)
     const fieldObj = {}
     fields.map(field => (fieldObj[field] = 1))
-    if (extraColumns) {
-      ;(extraColumns || [])
-        .map(col => (col[2] || []).map(f => (fieldObj[f] = 1)))
+    if (columns) {
+      ;(columns || [])
+        .map(col => (col.fields).map(f => (fieldObj[f] = 1)))
     }
     const handle = Meteor.subscribe(
       subscription,
@@ -234,17 +258,25 @@ class ListContainer extends React.Component {
   setPage = n => {
     this.setState({ page: n }, () => this.getIds())
   }
-  changeQuery = (key, value) => {
+  setQuery = (key, value) => {
+    const { query } = this.state
+    if (key[0] == '$') query[key] = value
+    else if (isArray(value)) query[key] = { $in: value }
+    else query[key] = { $regex: value, $options: 'i' }
+    if (!value) delete query[key]
+    this.setState(prevState => ({
+      page: 1,
+      query,
+      refreshQuery: !prevState.refreshQuery
+    }), () => this.getIds())
+  }
+  changeQuery = (keys, value) => {
     Meteor.clearTimeout(searchTimer)
     searchTimer = Meteor.setTimeout(() => {
-      const { query } = this.state
-      query[key] = { $regex: value, $options: 'i' }
-      if (value == '') delete query[key]
-      this.setState(prevState => ({
-        page: 1,
-        query,
-        refreshQuery: !prevState.refreshQuery
-      }), () => this.getIds() )
+      if (isArray(keys)) {
+        if (value) this.setQuery('$or', keys.map(key => ({ [key]: { $regex: value, $options: 'i' }})))
+        else this.setQuery('$or', false)
+      } else this.setQuery(keys, value)
     }, 500)
   }
   changeSort = key => {
