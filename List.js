@@ -29,7 +29,7 @@ fontawesome.library.add(
   faCheck
 )
 
-const xColConvert = xcols => xcols.map(xcol => {
+const xColConvert = xcols => (xcols|| []).map(xcol => {
   if (isArray(xcol)) {
     return {
       value: xcol[0],
