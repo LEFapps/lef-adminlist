@@ -14,7 +14,15 @@ import {
 } from '@fortawesome/free-solid-svg-icons'
 import { Table, InputGroup, Input, Button, InputGroupAddon } from 'reactstrap'
 import { withTracker } from 'meteor/react-meteor-data'
-import { get, set, last, upperFirst, forEach, isArray, defaults } from 'lodash'
+import {
+  get,
+  last,
+  upperFirst,
+  forEach,
+  isArray,
+  castArray,
+  defaults
+} from 'lodash'
 
 import Pagination from './Pagination'
 
@@ -29,16 +37,20 @@ fontawesome.library.add(
   faCheck
 )
 
-const xColConvert = xcols => (xcols|| []).map(xcol => {
-  if (isArray(xcol)) {
-    return {
-      value: xcol[0],
-      label: xcol[1] || '',
-      fields: xcol[2] || [],
-      search: xcol[3]
-    }
-  } else return defaults(xcol, { value: () => '', label: '', fields: [] })
-})
+const xColConvert = xcols =>
+  (xcols || []).map(xcol => {
+    if (isArray(xcol)) {
+      console.warn(
+        '[Deprecated] Adminlist: ExtraColumns: column definition should be an object. \nDefinitons as array can lead to unexpected behaviour in future versions. See documentation for more information.'
+      )
+      return {
+        value: xcol[0],
+        label: xcol[1] || '',
+        fields: xcol[2] || [],
+        search: xcol[3]
+      }
+    } else return defaults(xcol, { value: () => '', label: '', fields: [] })
+  })
 
 const AdminList = props => {
   const {
@@ -72,10 +84,14 @@ const AdminList = props => {
             {fields.map((field, i) => {
               return (
                 <th key={i}>
-                  <span style={{whiteSpace: 'nowrap'}}>
-                    {titles ? titles[i] : upperFirst(last(field.split('.')))}
-                    {' '}
-                    <Button onClick={() => changeSort(field)} outline size='sm' className={'float-right'}>
+                  <span style={{ whiteSpace: 'nowrap' }}>
+                    {titles ? titles[i] : upperFirst(last(field.split('.')))}{' '}
+                    <Button
+                      onClick={() => changeSort(field)}
+                      outline
+                      size='sm'
+                      className={'float-right'}
+                    >
                       <FontAwesomeIcon icon={sortIcon(field)} />
                     </Button>
                   </span>
@@ -85,7 +101,7 @@ const AdminList = props => {
             {columns
               ? columns.map((column, i) => (
                 <th key={`${i}-column`}>{column.label}</th>
-                ))
+              ))
               : null}
             {edit ? <th /> : null}
             {remove ? <th /> : null}
@@ -96,7 +112,7 @@ const AdminList = props => {
             {fields.map(field => {
               return (
                 <td key={`search-${field}`}>
-                  <InputGroup style={{flexWrap: 'nowrap'}}>
+                  <InputGroup style={{ flexWrap: 'nowrap' }}>
                     <Input onKeyUp={e => changeQuery(field, e.target.value)} />
                     <InputGroupAddon addonType='append'>
                       <Button>
@@ -108,78 +124,99 @@ const AdminList = props => {
               )
             })}
             {columns
-              ? columns.map((column, i) => (
-                column.search ?
-                  column.search.fields && column.search.value ?
-                  <td key={`${i}-column-search`}>
-                    <InputGroup style={{ flexWrap: 'nowrap' }}>
-                        <Input onKeyUp={e => changeQuery(column.search.fields, column.search.value(e.target.value))} />
-                      <InputGroupAddon addonType='append'>
-                        <Button>
-                          <FontAwesomeIcon icon={'search'} />
-                        </Button>
-                      </InputGroupAddon>
-                    </InputGroup>
-                    </td> : <td key={`${i}-column-search`} /> : <td key={`${i}-column-search`} />
-                ))
+              ? columns.map((column, i) =>
+                column.search ? (
+                  column.search.fields && column.search.value ? (
+                    <td key={`${i}-column-search`}>
+                      <InputGroup style={{ flexWrap: 'nowrap' }}>
+                        <Input
+                          onKeyUp={e =>
+                            changeQuery(
+                              column.search.fields,
+                              column.search.value(e.target.value)
+                            )
+                          }
+                        />
+                        <InputGroupAddon addonType='append'>
+                          <Button>
+                            <FontAwesomeIcon icon={'search'} />
+                          </Button>
+                        </InputGroupAddon>
+                      </InputGroup>
+                    </td>
+                  ) : (
+                    <td key={`${i}-column-search`} />
+                  )
+                ) : (
+                  <td key={`${i}-column-search`} />
+                )
+              )
               : null}
             {edit ? <td /> : null}
             {remove ? <td /> : null}
           </tr>
-          {loading
-            ? <tr>
+          {loading ? (
+            <tr>
               <td>
                 <FontAwesomeIcon
                   icon={'spinner'}
                   className='faa-spin animated'
-                  />
+                />
               </td>
             </tr>
-            : data.map(item => {
+          ) : (
+            data.map(item => {
               return (
                 <tr key={item._id}>
                   {fields.map(field => {
                     const value = get(item, field, '')
                     return (
                       <td key={`${item._id}-${field}`}>
-                        {typeof value === 'boolean'
-                            ? value
-                                ? <FontAwesomeIcon icon='check' />
-                                : <FontAwesomeIcon icon='times' />
-                            : value}
+                        {typeof value === 'boolean' ? (
+                          value ? (
+                            <FontAwesomeIcon icon='check' />
+                          ) : (
+                            <FontAwesomeIcon icon='times' />
+                          )
+                        ) : (
+                          value
+                        )}
                       </td>
                     )
                   })}
                   {columns
-                      ? columns.map((column, i) => (
-                        <td key={`${i}c-${item._id}`}>{column.value(item)}</td>
-                        ))
-                      : null}
-                  {edit
-                      ? <td>
-                        <Button
-                          onClick={() => edit(item)}
-                          outline
-                          size='sm'
-                          color='dark'>
-                          <FontAwesomeIcon icon={'edit'} />
-                        </Button>
-                      </td>
-                      : null}
-                  {remove
-                      ? <td>
-                        <Button
-                          onClick={() => remove(item)}
-                          outline
-                          size='sm'
-                          color='danger'>
-                          <FontAwesomeIcon icon={'times'} />
-                        </Button>
-                      </td>
-                      : null}
+                    ? columns.map((column, i) => (
+                      <td key={`${i}c-${item._id}`}>{column.value(item)}</td>
+                    ))
+                    : null}
+                  {edit ? (
+                    <td>
+                      <Button
+                        onClick={() => edit(item)}
+                        outline
+                        size='sm'
+                        color='dark'
+                      >
+                        <FontAwesomeIcon icon={'edit'} />
+                      </Button>
+                    </td>
+                  ) : null}
+                  {remove ? (
+                    <td>
+                      <Button
+                        onClick={() => remove(item)}
+                        outline
+                        size='sm'
+                        color='danger'
+                      >
+                        <FontAwesomeIcon icon={'times'} />
+                      </Button>
+                    </td>
+                  ) : null}
                 </tr>
               )
-            })}
+            })
+          )}
         </tbody>
       </Table>
       <Pagination {...props} />
@@ -203,8 +240,7 @@ const ListData = withTracker(
     const fieldObj = {}
     fields.map(field => (fieldObj[field] = 1))
     if (columns) {
-      ;(columns || [])
-        .map(col => (col.fields).map(f => (fieldObj[f] = 1)))
+      ;(columns || []).map(col => col.fields.map(f => (fieldObj[f] = 1)))
     }
     const handle = Meteor.subscribe(
       subscription,
@@ -264,18 +300,33 @@ class ListContainer extends React.Component {
     else if (isArray(value)) query[key] = { $in: value }
     else query[key] = { $regex: value, $options: 'i' }
     if (!value) delete query[key]
-    this.setState(prevState => ({
-      page: 1,
-      query,
-      refreshQuery: !prevState.refreshQuery
-    }), () => this.getIds())
+    this.setState(
+      prevState => ({
+        page: 1,
+        query,
+        refreshQuery: !prevState.refreshQuery
+      }),
+      () => this.getIds()
+    )
   }
   changeQuery = (keys, value) => {
     Meteor.clearTimeout(searchTimer)
     searchTimer = Meteor.setTimeout(() => {
       if (isArray(keys)) {
-        if (value) this.setQuery('$or', keys.map(key => ({ [key]: { $regex: value, $options: 'i' }})))
-        else this.setQuery('$or', false)
+        if (isArray(value)) {
+          // q = {$and: [ {$or: [{address: 'v1'}, {street: 'v1'} ]}, {$or: [{address: 'v2'}, {street: 'v2'}]} ]}
+          this.setQuery(
+            '$and',
+            value.map(val => ({
+              $or: keys.map(key => ({ [key]: { $regex: val, $options: 'i' } }))
+            }))
+          )
+        } else if (value) {
+          this.setQuery(
+            '$or',
+            keys.map(key => ({ [key]: { $regex: value, $options: 'i' } }))
+          )
+        } else this.setQuery('$or', false)
       } else this.setQuery(keys, value)
     }, 500)
   }
@@ -286,11 +337,14 @@ class ListContainer extends React.Component {
     } else {
       sort[key] = 1
     }
-    this.setState(prevState => ({
-      page: 1,
-      sort,
-      refreshQuery: !prevState.refreshQuery
-    }), () => this.getIds() )
+    this.setState(
+      prevState => ({
+        page: 1,
+        sort,
+        refreshQuery: !prevState.refreshQuery
+      }),
+      () => this.getIds()
+    )
   }
   componentDidMount () {
     this.getIds()
