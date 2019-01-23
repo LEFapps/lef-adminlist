@@ -112,7 +112,7 @@ const AdminList = props => {
             {fields.map(field => {
               return (
                 <td key={`search-${field}`}>
-                  <InputGroup style={{ flexWrap: 'nowrap' }}>
+                  <InputGroup size={'sm'} style={{ flexWrap: 'nowrap' }}>
                     <Input onKeyUp={e => changeQuery(field, e.target.value)} />
                     <InputGroupAddon addonType='append'>
                       <Button>
@@ -128,7 +128,7 @@ const AdminList = props => {
                 column.search ? (
                   column.search.fields && column.search.value ? (
                     <td key={`${i}-column-search`}>
-                      <InputGroup style={{ flexWrap: 'nowrap' }}>
+                      <InputGroup size={'sm'} style={{ flexWrap: 'nowrap' }}>
                         <Input
                           onKeyUp={e =>
                             changeQuery(
