@@ -36,9 +36,11 @@ const extraColumns = [
 <List
   collection={Collection}
   getIdsCall='getIds'
+  // or: getIdsCall={{call:'methodName',arguments:'methodArguments'}}
   subscription='subscription'
   fields={fields}
   getTotalCall='totalDocs'
+  // or: getTotalCall={{call:'methodName',arguments:'methodArguments'}}
   defaultQuery={{ type: 'only_show_this_type' }}
   remove={remove}
   edit={edit}
