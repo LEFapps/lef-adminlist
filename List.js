@@ -41,6 +41,9 @@ fontawesome.library.add(
 const xColConvert = xcols =>
   (xcols || []).map(xcol => {
     if (isArray(xcol)) {
+      console.warn(
+        '[Deprecated] Adminlist: ExtraColumns: column definition should be an object. \nDefinitons as array can lead to unexpected behaviour in future versions. See documentation for more information.'
+      )
       return {
         value: xcol[0],
         label: xcol[1] || '',
@@ -110,7 +113,7 @@ const AdminList = props => {
             {fields.map(field => {
               return (
                 <td key={`search-${field}`}>
-                  <InputGroup style={{ flexWrap: 'nowrap' }}>
+                  <InputGroup size={'sm'} style={{ flexWrap: 'nowrap' }}>
                     <Input onKeyUp={e => changeQuery(field, e.target.value)} />
                     <InputGroupAddon addonType='append'>
                       <Button>
@@ -126,7 +129,7 @@ const AdminList = props => {
                 column.search ? (
                   column.search.fields && column.search.value ? (
                     <td key={`${i}-column-search`}>
-                      <InputGroup style={{ flexWrap: 'nowrap' }}>
+                      <InputGroup size={'sm'} style={{ flexWrap: 'nowrap' }}>
                         <Input
                           onKeyUp={e =>
                             changeQuery(
@@ -323,7 +326,14 @@ class ListContainer extends React.Component {
     Meteor.clearTimeout(searchTimer)
     searchTimer = Meteor.setTimeout(() => {
       if (isArray(keys)) {
-        if (value) {
+        if (isArray(value)) {
+          this.setQuery(
+            '$and',
+            value.map(val => ({
+              $or: keys.map(key => ({ [key]: { $regex: val, $options: 'i' } }))
+            }))
+          )
+        } else if (value) {
           this.setQuery(
             '$or',
             keys.map(key => ({ [key]: { $regex: value, $options: 'i' } }))

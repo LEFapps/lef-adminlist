@@ -28,7 +28,7 @@ const extraColumns = [
     fields: ['percentage'],
     search: { // search definition for custom columns
       fields: 'percentage', // field(s) on which to search (string or array)
-      transformValue: value => value / 100 // basically the reverse logic of value
+      value: value => value / 100 // basically the reverse logic of value (value or array)
     }
   },
 ]
