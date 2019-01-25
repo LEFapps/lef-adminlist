@@ -295,7 +295,7 @@ class ListContainer extends React.Component {
       ? this.props.getTotalCall
       : this.props.getTotalCall.call
     const arg = isString(this.props.getTotalCall)
-      ? query
+      ? this.state.query
       : merge(this.state.query, this.props.getTotalCall.arguments)
     Meteor.call(call, arg, (e, r) => {
       if (r) this.setState({ total: r })
