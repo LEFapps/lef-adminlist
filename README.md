@@ -12,9 +12,16 @@ const fields = ['name', 'emails.0.address']
 const titles = ['naam', 'emailadres']
 const remove = doc => Meteor.call('removeDoc', doc._id)
 
-const edit = doc => {
-  this.props.history.push(`${this.props.match.url}/edit/${doc._id}`);
-};
+// edit link (recommended)
+const edit = {
+  action: doc => `${this.props.match.url}/edit/${doc._id}`,
+  link: true
+}
+// or create a custom action (popup, do not us this for routing – UX)
+const edit = {
+  action: doc => this.props.history.push(`${this.props.match.url}/edit/${doc._id}`),
+  link: false
+}
 
 const extraColumns = [
   {

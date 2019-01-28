@@ -1,4 +1,5 @@
 import React from 'react'
+import { Link } from 'react-router-dom'
 import PropTypes from 'prop-types'
 import fontawesome from '@fortawesome/fontawesome'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -22,6 +23,7 @@ import {
   forEach,
   isArray,
   isString,
+  isFunction,
   defaults
 } from 'lodash'
 
@@ -62,7 +64,6 @@ const AdminList = props => {
     titles,
     changeQuery,
     changeSort,
-    edit,
     remove,
     extraColumns
   } = props
@@ -77,6 +78,14 @@ const AdminList = props => {
         return 'sort'
     }
   }
+  if (isFunction(props.edit)) {
+    console.warn(
+      '[Deprecated] Adminlist: edit: column definition should be an object. \nDefinitons as function can lead to unexpected behaviour in future versions. See documentation for more information.'
+    )
+  }
+  const edit = isFunction(props.edit)
+    ? { action: props.edit, link: false }
+    : props.edit
   return (
     <div>
       <Table hover>
@@ -192,14 +201,23 @@ const AdminList = props => {
                     : null}
                   {edit ? (
                     <td>
-                      <Button
-                        onClick={() => edit(item)}
-                        outline
-                        size='sm'
-                        color='dark'
-                      >
-                        <FontAwesomeIcon icon={'edit'} />
-                      </Button>
+                      {edit.link ? (
+                        <Link
+                          to={edit.action(item)}
+                          className={'btn btn-outline-dark btn-sm'}
+                        >
+                          <FontAwesomeIcon icon={'edit'} />
+                        </Link>
+                      ) : (
+                        <Button
+                          onClick={() => edit.action(item)}
+                          outline
+                          size='sm'
+                          color='dark'
+                        >
+                          <FontAwesomeIcon icon={'edit'} />
+                        </Button>
+                      )}
                     </td>
                   ) : null}
                   {remove ? (
@@ -383,7 +401,7 @@ ListContainer.propTypes = {
   getTotalCall: PropTypes.oneOfType([PropTypes.string, PropTypes.object])
     .isRequired,
   fields: PropTypes.arrayOf(PropTypes.string).isRequired,
-  edit: PropTypes.func,
+  edit: PropTypes.oneOfType([PropTypes.object, PropTypes.func]),
   remove: PropTypes.func,
   extraColumns: PropTypes.array,
   defaultQuery: PropTypes.object
