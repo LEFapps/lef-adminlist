@@ -17,7 +17,7 @@ const edit = {
   action: doc => `${this.props.match.url}/edit/${doc._id}`,
   link: true
 }
-// or create a custom action (popup, do not us this for routing – UX)
+// or create a custom action (e.g. popup, do not us this for routing – UX)
 const edit = {
   action: doc => this.props.history.push(`${this.props.match.url}/edit/${doc._id}`),
   link: false
