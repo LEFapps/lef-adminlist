@@ -100,8 +100,7 @@ const AdminList = props => {
                       onClick={() => changeSort(field)}
                       outline
                       size='sm'
-                      className={'float-right'}
-                    >
+                      className={'float-right'}>
                       <FontAwesomeIcon icon={sortIcon(field)} />
                     </Button>
                   </span>
@@ -204,8 +203,7 @@ const AdminList = props => {
                       {edit.link ? (
                         <Link
                           to={edit.action(item)}
-                          className={'btn btn-outline-dark btn-sm'}
-                        >
+                          className={'btn btn-outline-dark btn-sm'}>
                           <FontAwesomeIcon icon={'edit'} />
                         </Link>
                       ) : (
@@ -213,8 +211,7 @@ const AdminList = props => {
                           onClick={() => edit.action(item)}
                           outline
                           size='sm'
-                          color='dark'
-                        >
+                          color='dark'>
                           <FontAwesomeIcon icon={'edit'} />
                         </Button>
                       )}
@@ -226,8 +223,7 @@ const AdminList = props => {
                         onClick={() => remove(item)}
                         outline
                         size='sm'
-                        color='danger'
-                      >
+                        color='danger'>
                         <FontAwesomeIcon icon={'times'} />
                       </Button>
                     </td>
@@ -376,6 +372,10 @@ class ListContainer extends React.Component {
       () => this.getIds()
     )
   }
+  removeItem = item => {
+    this.props.remove(item)
+    this.getIds()
+  }
   componentDidMount () {
     this.getIds()
   }
@@ -384,6 +384,7 @@ class ListContainer extends React.Component {
       <ListData
         {...this.props}
         {...this.state}
+        remove={this.removeItem}
         setPage={this.setPage}
         changeQuery={this.changeQuery}
         changeSort={this.changeSort}
