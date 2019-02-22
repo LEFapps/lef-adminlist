@@ -30,6 +30,8 @@ import {
 
 import Pagination from './Pagination'
 
+import './layout.css'
+
 fontawesome.library.add(
   faSearch,
   faSpinner,
@@ -88,14 +90,14 @@ const AdminList = props => {
     ? { action: props.edit, link: false }
     : props.edit
   return (
-    <div>
+    <div className={'adminlist table-responsive-md'}>
       <Table hover>
         <thead>
           <tr>
             {fields.map((field, i) => {
               return (
                 <th key={i}>
-                  <span style={{ whiteSpace: 'nowrap' }}>
+                  <div className={'adminlist-th'}>
                     {titles ? titles[i] : upperFirst(last(field.split('.')))}{' '}
                     <Button
                       onClick={() => changeSort(field)}
@@ -105,7 +107,7 @@ const AdminList = props => {
                     >
                       <FontAwesomeIcon icon={sortIcon(field)} />
                     </Button>
-                  </span>
+                  </div>
                 </th>
               )
             })}
