@@ -24,6 +24,7 @@ import {
   isArray,
   isString,
   isFunction,
+  isDate,
   defaults
 } from 'lodash'
 
@@ -100,7 +101,8 @@ const AdminList = props => {
                       onClick={() => changeSort(field)}
                       outline
                       size='sm'
-                      className={'float-right'}>
+                      className={'float-right'}
+                    >
                       <FontAwesomeIcon icon={sortIcon(field)} />
                     </Button>
                   </span>
@@ -187,6 +189,8 @@ const AdminList = props => {
                           ) : (
                             <FontAwesomeIcon icon='times' />
                           )
+                        ) : isDate(value) ? (
+                          value.toDateString()
                         ) : (
                           value
                         )}
@@ -203,7 +207,8 @@ const AdminList = props => {
                       {edit.link ? (
                         <Link
                           to={edit.action(item)}
-                          className={'btn btn-outline-dark btn-sm'}>
+                          className={'btn btn-outline-dark btn-sm'}
+                        >
                           <FontAwesomeIcon icon={'edit'} />
                         </Link>
                       ) : (
@@ -211,7 +216,8 @@ const AdminList = props => {
                           onClick={() => edit.action(item)}
                           outline
                           size='sm'
-                          color='dark'>
+                          color='dark'
+                        >
                           <FontAwesomeIcon icon={'edit'} />
                         </Button>
                       )}
@@ -223,7 +229,8 @@ const AdminList = props => {
                         onClick={() => remove(item)}
                         outline
                         size='sm'
-                        color='danger'>
+                        color='danger'
+                      >
                         <FontAwesomeIcon icon={'times'} />
                       </Button>
                     </td>
