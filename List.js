@@ -393,7 +393,7 @@ class ListContainer extends React.Component {
       <ListData
         {...this.props}
         {...this.state}
-        remove={this.removeItem}
+        remove={this.props.remove ? this.removeItem : false}
         setPage={this.setPage}
         changeQuery={this.changeQuery}
         changeSort={this.changeSort}
