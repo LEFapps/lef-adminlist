@@ -1,0 +1,19 @@
+.adminlist th {
+  line-height: 2;
+}
+
+.adminlist td {
+  vertical-align: middle;
+}
+
+.adminlist .adminlist-th {
+  position: relative;
+
+  padding-right: 2rem;
+}
+
+.adminlist .adminlist-th .btn {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+}
