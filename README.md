@@ -36,6 +36,12 @@ const extraColumns = [
     search: { // search definition for custom columns
       fields: 'percentage', // field(s) on which to search (string or array)
       value: value => value / 100 // basically the reverse logic of value (value or array)
+    },
+    // OR search can be a function for async stuff:
+    search: ({ value, changeQuery }) => {
+      Meteor.call('percentageSearch', value, (e, r) => {
+        changeQuery('percentage', r) // call should return an array
+      })
     }
   },
 ]

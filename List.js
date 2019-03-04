@@ -136,9 +136,18 @@ const AdminList = props => {
             {columns
               ? columns.map((column, i) =>
                 column.search ? (
-                  column.search.fields && column.search.value ? (
-                    <td key={`${i}-column-search`}>
-                      <InputGroup size={'sm'} style={{ flexWrap: 'nowrap' }}>
+                  <td key={`${i}-column-search`}>
+                    <InputGroup size={'sm'} style={{ flexWrap: 'nowrap' }}>
+                      {typeof column.search === 'function' ? (
+                        <Input
+                          onKeyUp={e =>
+                            column.search({
+                              value: e.target.value,
+                              changeQuery
+                            })
+                          }
+                        />
+                      ) : (
                         <Input
                           onKeyUp={e =>
                             changeQuery(
@@ -147,16 +156,15 @@ const AdminList = props => {
                             )
                           }
                         />
-                        <InputGroupAddon addonType='append'>
-                          <Button>
-                            <FontAwesomeIcon icon={'search'} />
-                          </Button>
-                        </InputGroupAddon>
-                      </InputGroup>
-                    </td>
-                  ) : (
-                    <td key={`${i}-column-search`} />
-                  )
+                      )}
+
+                      <InputGroupAddon addonType='append'>
+                        <Button>
+                          <FontAwesomeIcon icon={'search'} />
+                        </Button>
+                      </InputGroupAddon>
+                    </InputGroup>
+                  </td>
                 ) : (
                   <td key={`${i}-column-search`} />
                 )
