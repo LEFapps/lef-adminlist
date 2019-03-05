@@ -46,6 +46,8 @@ const extraColumns = [
   },
 ]
 
+const stateHasChanged = ({ page, total, sort, ...childState }) => this.setState({ showList: !!total })
+
 <List
   collection={Collection}
   getIdsCall='getIds'
@@ -58,6 +60,7 @@ const extraColumns = [
   remove={remove}
   edit={edit}
   extraColumns={extraColumns}
+  onStateChange={stateHasChanged}
 />
 ```
 
@@ -94,3 +97,15 @@ Meteor.methods({
   }
 });
 ```
+
+### onStateChange
+
+This function is called only
+1. when the state of the list has changed (query, sorting, …)
+2. when the total amount of visible items is known (getTotalCall has got a result)
+
+This function receives the latest state of the list `({ page, total, sort, query, ids, ...childState })`.
+
+**Example usage:**
+* use the property total to show/hide the list and adjacent components (set state of parent component)
+* show the total amount outside the list `<h1>Users ({total})</h1>`

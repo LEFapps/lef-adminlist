@@ -332,7 +332,13 @@ class ListContainer extends React.Component {
       ? this.state.query
       : merge(this.state.query, this.props.getTotalCall.arguments)
     Meteor.call(call, arg, (e, r) => {
-      if (r) this.setState({ total: r })
+      if (r) {
+        this.setState({ total: r }, () =>
+          this.props.onStateChange
+            ? this.props.onStateChange(this.state)
+            : null
+        )
+      }
     })
   }
   setPage = n => {
@@ -422,7 +428,8 @@ ListContainer.propTypes = {
   edit: PropTypes.oneOfType([PropTypes.object, PropTypes.func]),
   remove: PropTypes.func,
   extraColumns: PropTypes.array,
-  defaultQuery: PropTypes.object
+  defaultQuery: PropTypes.object,
+  onStateChange: PropTypes.func
 }
 
 export default ListContainer
