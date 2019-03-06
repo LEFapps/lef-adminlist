@@ -1,5 +1,13 @@
 # Admin list
 
+## Install
+
+1. Add this repo as a git submodule in the `/packages` repository
+1. `$ meteor add lef:adminlist`
+1. Make sure the following icons are in your **fontawesome library**:
+  `faCheck, faEdit, faSearch, faSort, faSortAlphaDown, faSortAlphaUp, faSpinner, faTimes`<br>
+  (Using an [icons helper file*](#icons-helper-file) is recommended.)
+
 ## Usage
 
 Use the `<List />` component to create a list of data with filter, pagination and sorting functions.
@@ -109,3 +117,13 @@ This function receives the latest state of the list `({ page, total, sort, query
 **Example usage:**
 * use the property total to show/hide the list and adjacent components (set state of parent component)
 * show the total amount outside the list `<h1>Users ({total})</h1>`
+
+## Icons helper file
+
+Import a file with this structure on startup:
+
+```JS
+import { library } from '@fortawesome/fontawesome'
+import { ...icons } from '@fortawesome/free-solid-svg-icons'
+library.add(...icons)
+```

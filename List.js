@@ -1,61 +1,30 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
 import PropTypes from 'prop-types'
-import fontawesome from '@fortawesome/fontawesome'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import {
-  faSearch,
-  faSpinner,
-  faTimes,
-  faEdit,
-  faSort,
-  faSortAlphaUp,
-  faSortAlphaDown,
-  faCheck
-} from '@fortawesome/free-solid-svg-icons'
 import { Table, InputGroup, Input, Button, InputGroupAddon } from 'reactstrap'
 import { withTracker } from 'meteor/react-meteor-data'
 import {
-  get,
-  merge,
-  last,
-  upperFirst,
+  defaults,
   forEach,
+  get,
   isArray,
-  isString,
-  isFunction,
   isDate,
-  defaults
+  isFunction,
+  isString,
+  last,
+  merge,
+  size,
+  upperFirst
 } from 'lodash'
 
 import Pagination from './Pagination'
 
 import './layout.css'
 
-fontawesome.library.add(
-  faSearch,
-  faSpinner,
-  faTimes,
-  faEdit,
-  faSort,
-  faSortAlphaUp,
-  faSortAlphaDown,
-  faCheck
-)
-
 const xColConvert = xcols =>
   (xcols || []).map(xcol => {
-    if (isArray(xcol)) {
-      console.warn(
-        '[Deprecated] Adminlist: ExtraColumns: column definition should be an object. \nDefinitons as array can lead to unexpected behaviour in future versions. See documentation for more information.'
-      )
-      return {
-        value: xcol[0],
-        label: xcol[1] || '',
-        fields: xcol[2] || [],
-        search: xcol[3]
-      }
-    } else return defaults(xcol, { value: () => '', label: '', fields: [] })
+    return defaults(xcol, { value: () => '', label: '', fields: [] })
   })
 
 const AdminList = props => {
@@ -71,6 +40,8 @@ const AdminList = props => {
     extraColumns
   } = props
   const columns = xColConvert(extraColumns)
+  const columnCount =
+    size(fields) + size(extraColumns) + (props.edit ? 1 : 0) + (remove ? 1 : 0)
   const sortIcon = field => {
     switch (sort[field]) {
       case -1:
@@ -81,13 +52,8 @@ const AdminList = props => {
         return 'sort'
     }
   }
-  if (isFunction(props.edit)) {
-    console.warn(
-      '[Deprecated] Adminlist: edit: column definition should be an object. \nDefinitons as function can lead to unexpected behaviour in future versions. See documentation for more information.'
-    )
-  }
-  const edit = isFunction(props.edit)
-    ? { action: props.edit, link: false }
+  const edit = props.edit
+    ? defaults(props.edit, { action: () => null, link: false })
     : props.edit
   return (
     <div className={'adminlist table-responsive-md'}>
@@ -178,7 +144,7 @@ const AdminList = props => {
           </tr>
           {loading ? (
             <tr>
-              <td>
+              <td colSpan={columnCount}>
                 <FontAwesomeIcon
                   icon={'spinner'}
                   className='faa-spin animated'
