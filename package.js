@@ -13,19 +13,3 @@ Package.onUse(api => {
 Npm.depends({
   'prop-types': '15.6.2'
 })
-
-/**
- * Make sure following npm packages are available
- *
- * react: '16.5.0'
- * reactstrap: '6.5.0'
- * @fortawesome/react-fontawesome: '0.1.0'
- * @fortawesome/fontawesome: '1.1.8'
- * @fortawesome/fontawesome-svg-core: '1.2.0'
- * @fortawesome/free-solid-svg-icons: '5.2.0'
- *
- *
- * Add following icons to your fontawesome library:
- *
- * faCheck, faEdit, faSearch, faSort, faSortAlphaDown, faSortAlphaUp, faSpinner, faTimes
- */
