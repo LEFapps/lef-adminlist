@@ -1,5 +1,5 @@
 import React from 'react'
-import { Link } from 'react-router-dom'
+import { NavLink } from 'react-router-dom'
 import PropTypes from 'prop-types'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { Table, InputGroup, Input, Button, InputGroupAddon } from 'reactstrap'
@@ -179,14 +179,14 @@ const AdminList = props => {
                     ))
                     : null}
                   {edit ? (
-                    <td>
+                    <td className='action edit'>
                       {edit.link ? (
-                        <Link
+                        <NavLink
                           to={edit.action(item)}
                           className={'btn btn-outline-dark btn-sm'}
                         >
                           <FontAwesomeIcon icon={'edit'} />
-                        </Link>
+                        </NavLink>
                       ) : (
                         <Button
                           onClick={() => edit.action(item)}
@@ -200,7 +200,7 @@ const AdminList = props => {
                     </td>
                   ) : null}
                   {remove ? (
-                    <td>
+                    <td className='action remove'>
                       <Button
                         onClick={() => remove(item)}
                         outline
