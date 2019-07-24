@@ -16,8 +16,11 @@ Use the `<List />` component to create a list of data with filter, pagination an
 import List from 'meteor/lef:adminlist'
 import Collection from './somewhere'
 
+// fields directly shown as columns
 const fields = ['name', 'emails.0.address']
-const titles = ['naam', 'emailadres']
+// subset of columns shown below sm (or folded panel in @lefapps/admin-dashboard)
+const fieldsCompact = ['name', 'score']
+const titles = ['Name', 'Email Address']
 const remove = doc => Meteor.call('removeDoc', doc._id)
 
 // edit link (recommended)
@@ -33,11 +36,13 @@ const edit = {
 
 const extraColumns = [
   {
+    name: 'fullname', // used to match compact
     value: ({ firstname, lastname }) => firstname + ' ' + lastname,
     label: 'Full Name', // title of custom column
     fields: ['firstname','lastname'] // list of fields needed for this column
   },
   {
+    name: 'score',
     value: doc => Math.round(doc.percentage * 100),
     label: 'Score',
     fields: ['percentage'],
@@ -62,6 +67,7 @@ const stateHasChanged = ({ page, total, sort, ...childState }) => this.setState(
   // or: getIdsCall={{call:'methodName',arguments:'methodArguments'}}
   subscription='subscription'
   fields={fields}
+  fieldsCompact={fieldsCompact}
   getTotalCall='totalDocs'
   // or: getTotalCall={{call:'methodName',arguments:'methodArguments'}}
   defaultQuery={{ type: 'only_show_this_type' }}

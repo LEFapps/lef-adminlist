@@ -24,7 +24,7 @@ import './layout.css'
 
 const xColConvert = xcols =>
   (xcols || []).map(xcol => {
-    return defaults(xcol, { value: () => '', label: '', fields: [] })
+    return defaults(xcol, { name: '', label: '', value: () => '', fields: [] })
   })
 
 const AdminList = props => {
@@ -33,6 +33,7 @@ const AdminList = props => {
     data,
     sort,
     fields,
+    fieldsCompact,
     titles,
     changeQuery,
     changeSort,
@@ -55,44 +56,58 @@ const AdminList = props => {
   const edit = props.edit
     ? defaults(props.edit, { action: () => null, link: false })
     : props.edit
+  const compactClass = match => {
+    if (!fieldsCompact) return ''
+    const index = fieldsCompact.indexOf(match)
+    return index >= 0
+      ? `order-${index} adminlist-compact`
+      : 'd-none d-sm-table-cell adminlist-expand'
+  }
   return (
-    <div className={'adminlist table-responsive-md'}>
+    <div
+      className={`adminlist table-responsive-md${
+        fieldsCompact && fieldsCompact.length
+          ? ' adminlist-compact'
+          : ' adminlist-expand'
+      }`}
+    >
       <Table hover>
         <thead>
-          <tr>
-            {fields.map((field, i) => {
-              return (
-                <th key={i}>
-                  <div className={'adminlist-th'}>
-                    {titles ? titles[i] : upperFirst(last(field.split('.')))}{' '}
-                    <Button
-                      onClick={() => changeSort(field)}
-                      outline
-                      size='sm'
-                      className={'float-right'}
-                    >
-                      <FontAwesomeIcon icon={sortIcon(field)} />
-                    </Button>
-                  </div>
-                </th>
-              )
-            })}
+          <tr className={'adminlist-labels'}>
+            {fields.map((field, i) => (
+              <th key={i} className={compactClass(field)}>
+                <div className={'adminlist-th'}>
+                  {titles ? titles[i] : upperFirst(last(field.split('.')))}{' '}
+                  <Button
+                    onClick={() => changeSort(field)}
+                    outline
+                    size='sm'
+                    className={'float-right'}
+                  >
+                    <FontAwesomeIcon icon={sortIcon(field)} />
+                  </Button>
+                </div>
+              </th>
+            ))}
             {columns
               ? columns.map((column, i) => (
-                <th key={`${i}-column`}>{column.label}</th>
+                <th key={`${i}-column`} className={compactClass(column.name)}>
+                  {column.label}
+                </th>
               ))
               : null}
             {edit ? <th /> : null}
             {remove ? <th /> : null}
           </tr>
-        </thead>
-        <tbody>
-          <tr>
-            {fields.map(field => {
+          <tr className={'adminlist-filters'}>
+            {fields.map((field, i) => {
               return (
-                <td key={`search-${field}`}>
+                <td key={`search-${field}`} className={compactClass(field)}>
                   <InputGroup size={'sm'} style={{ flexWrap: 'nowrap' }}>
-                    <Input onKeyUp={e => changeQuery(field, e.target.value)} />
+                    <Input
+                      onKeyUp={e => changeQuery(field, e.target.value)}
+                      placeholder={titles ? titles[i] || field : field}
+                    />
                     <InputGroupAddon addonType='append'>
                       <Button>
                         <FontAwesomeIcon icon={'search'} />
@@ -105,7 +120,10 @@ const AdminList = props => {
             {columns
               ? columns.map((column, i) =>
                 column.search ? (
-                  <td key={`${i}-column-search`}>
+                  <td
+                    key={`${i}-column-search`}
+                    className={compactClass(column.name)}
+                  >
                     <InputGroup size={'sm'} style={{ flexWrap: 'nowrap' }}>
                       {typeof column.search === 'function' ? (
                         <Input
@@ -115,6 +133,7 @@ const AdminList = props => {
                               changeQuery
                             })
                           }
+                          placeholder={column.label || column.name}
                         />
                       ) : (
                         <Input
@@ -142,6 +161,8 @@ const AdminList = props => {
             {edit ? <td /> : null}
             {remove ? <td /> : null}
           </tr>
+        </thead>
+        <tbody>
           {loading ? (
             <tr>
               <td colSpan={columnCount}>
@@ -158,7 +179,10 @@ const AdminList = props => {
                   {fields.map(field => {
                     const value = get(item, field, '')
                     return (
-                      <td key={`${item._id}-${field}`}>
+                      <td
+                        key={`${item._id}-${field}`}
+                        className={compactClass(field)}
+                      >
                         {typeof value === 'boolean' ? (
                           value ? (
                             <FontAwesomeIcon icon='check' />
@@ -175,11 +199,16 @@ const AdminList = props => {
                   })}
                   {columns
                     ? columns.map((column, i) => (
-                      <td key={`${i}c-${item._id}`}>{column.value(item)}</td>
+                      <td
+                        key={`${i}c-${item._id}`}
+                        className={compactClass(column.name)}
+                      >
+                        {column.value(item)}
+                      </td>
                     ))
                     : null}
                   {edit ? (
-                    <td className='action edit'>
+                    <td className='adminlist-action edit'>
                       {edit.link ? (
                         <NavLink
                           to={edit.action(item)}
@@ -200,7 +229,7 @@ const AdminList = props => {
                     </td>
                   ) : null}
                   {remove ? (
-                    <td className='action remove'>
+                    <td className='adminlist-action remove'>
                       <Button
                         onClick={() => remove(item)}
                         outline
@@ -240,15 +269,11 @@ const ListData = withTracker(
     if (columns) {
       ;(columns || []).map(col => col.fields.map(f => (fieldObj[f] = 1)))
     }
-    const handle = Meteor.subscribe(
-      subscription,
-      { _id: { $in: ids || [] } },
-      { fields: fieldObj }
-    )
-    return {
-      loading: !handle.ready(),
-      data: collection.find({ _id: { $in: ids || [] } }, { sort }).fetch()
-    }
+    const query = { _id: { $in: ids || [] } }
+    const handle = Meteor.subscribe(subscription, query, { fields: fieldObj })
+    const loading = !handle.ready()
+    const data = collection.find(query, { sort }).fetch()
+    return { loading, data }
   }
 )(AdminList)
 
