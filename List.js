@@ -392,6 +392,10 @@ class ListContainer extends React.Component {
   }
   componentDidMount () {
     this.getIds()
+    window.addEventListener('popstate', this.getIds)
+  }
+  componentWillUnmount () {
+    window.removeEventListener('popstate', this.getIds)
   }
   render () {
     return (
