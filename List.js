@@ -187,7 +187,12 @@ const AdminList = props => {
                     return (
                       <td
                         key={`${item._id}-${field}`}
-                        className={compactClass(field)}
+                        className={
+                          compactClass(field) +
+                          (typeof value === 'boolean'
+                            ? `text-${value ? 'success' : 'danger'}`
+                            : '')
+                        }
                       >
                         {typeof value === 'boolean' ? (
                           value ? (
