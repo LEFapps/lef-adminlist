@@ -106,7 +106,13 @@ const AdminList = props => {
                   <InputGroup size={'sm'} style={{ flexWrap: 'nowrap' }}>
                     <Input
                       onKeyUp={e => changeQuery(field, e.target.value)}
-                      placeholder={titles ? titles[i] || field : field}
+                      placeholder={
+                        titles
+                          ? titles[i] && isString(titles[i])
+                            ? titles[i] || field
+                            : field
+                          : field
+                      }
                     />
                     <InputGroupAddon addonType='append'>
                       <Button>
