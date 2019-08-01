@@ -202,6 +202,8 @@ const AdminList = props => {
                           )
                         ) : isDate(value) ? (
                           value.toDateString()
+                        ) : isArray(value) ? (
+                          value.join(', ')
                         ) : (
                           value
                         )}
