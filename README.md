@@ -23,15 +23,19 @@ const fieldsCompact = ['name', 'score']
 const titles = ['Name', 'Email Address']
 const remove = doc => Meteor.call('removeDoc', doc._id)
 
-// edit link (recommended)
+// link (recommended)
 const edit = {
   action: doc => `${this.props.match.url}/edit/${doc._id}`,
-  link: true
+  type: 'link'
 }
-// or create a custom action (e.g. popup, do not us this for routing – UX)
+// component
 const edit = {
-  action: doc => this.props.history.push(`${this.props.match.url}/edit/${doc._id}`),
-  link: false
+  action: doc => <div />,
+  type: 'component'
+}
+// or create a custom action (e.g. popup, do not use this for routing – UX)
+const edit = {
+  action: doc => this.props.history.push(`${this.props.match.url}/edit/${doc._id}`)
 }
 
 const extraColumns = [
@@ -80,36 +84,31 @@ const stateHasChanged = ({ page, total, sort, ...childState }) => this.setState(
 
 ## Server side
 
-### Getting the id's
-
-```JS
-Meteor.methods({
-  getIds: (query, params) => {
-    return Collection.find(query, params).map(({ _id }) => _id)
-  }
-})
-```
-
 ### Publish function
 
-The publish function server side should look like this.
-
 ```JS
-Meteor.publish("subscription", (query, params = {}) => {
-  return Collection.find(query, params);
-});
+// inject your logic before returning (security, filtering deleted, …)
+// this function is reusable for required methods
+const getItems = (query = {}, params = {}) => Collection.find(query, params)
+
+Meteor.publish("subscription", getItems)
 ```
 
-### Meteor method
+### Getting the ids
+
+Provide a Meteor method to get the ids for the current query.
+
+```JS
+Meteor.methods({ getIds: (query, params) => getItems(query, params).map(({ _id }) => _id) })
+```
+
+
+### Get the amount
 
 Provide a Meteor method to get a total document count.
 
 ```JS
-Meteor.methods({
-  totalDocs: (query) => {
-    return Modules.find(query).count();
-  }
-});
+Meteor.methods({ getTotals: (query, params) => getItems(query, params).count() })
 ```
 
 ### onStateChange
@@ -129,7 +128,8 @@ This function receives the latest state of the list `({ page, total, sort, query
 Import a file with this structure on startup:
 
 ```JS
-import { library } from '@fortawesome/fontawesome'
+import { library } from '@fortawesome/fontawesome-svg-core'
 import { ...icons } from '@fortawesome/free-solid-svg-icons'
+
 library.add(...icons)
 ```

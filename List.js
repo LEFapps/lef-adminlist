@@ -228,13 +228,15 @@ const AdminList = props => {
                     : null}
                   {edit ? (
                     <td className='adminlist-action edit'>
-                      {edit.link ? (
+                      {edit.link || edit.type === 'link' ? (
                         <NavLink
                           to={edit.action(item)}
                           className={'btn btn-outline-dark btn-sm'}
                         >
                           <FontAwesomeIcon icon={'edit'} />
                         </NavLink>
+                      ) : edit.component || edit.type === 'component' ? (
+                        <edit.action {...item} />
                       ) : (
                         <Button
                           onClick={() => edit.action(item)}
@@ -307,7 +309,8 @@ class ListContainer extends React.Component {
       query: {},
       ids: null,
       sort: {},
-      refreshQuery: false
+      refreshQuery: false,
+      loading: false
     }
   }
   getIds = () => {
@@ -341,9 +344,10 @@ class ListContainer extends React.Component {
     const arg = isString(this.props.getTotalCall)
       ? this.state.query
       : merge(this.state.query, this.props.getTotalCall.arguments)
+    this.setState({ laoding: true })
     Meteor.call(call, arg, (e, r) => {
       if (r) {
-        this.setState({ total: r }, () =>
+        this.setState({ total: r, loading: false }, () =>
           this.props.onStateChange
             ? this.props.onStateChange(this.state)
             : null
