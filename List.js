@@ -38,7 +38,8 @@ const AdminList = props => {
     changeQuery,
     changeSort,
     remove,
-    extraColumns
+    extraColumns,
+    defaultQuery
   } = props
   const columns = xColConvert(extraColumns)
   const columnCount =
@@ -101,6 +102,10 @@ const AdminList = props => {
           </tr>
           <tr className={'adminlist-filters'}>
             {fields.map((field, i) => {
+              const defaultValue = defaultQuery
+                ? defaultQuery[field]
+                : undefined
+              const searchParams = { defaultValue, disabled: !!defaultValue }
               return (
                 <td key={`search-${field}`} className={compactClass(field)}>
                   <InputGroup size={'sm'} style={{ flexWrap: 'nowrap' }}>
@@ -113,6 +118,7 @@ const AdminList = props => {
                             : field
                           : field
                       }
+                      {...searchParams}
                     />
                     <InputGroupAddon addonType='append'>
                       <Button>
