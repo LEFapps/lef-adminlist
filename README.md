@@ -27,9 +27,9 @@ const edit = {
   action: doc => `${this.props.match.url}/edit/${doc._id}`,
   type: 'link'
 }
-// component
+// component (listProps exposes default children (icon), className)
 const edit = {
-  action: doc => <div />,
+  action: ({°id, listProps }) => <Link to={_id} {...listProps} />,
   type: 'component'
 }
 // or create a custom action (e.g. popup, do not use this for routing – UX)

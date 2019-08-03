@@ -238,7 +238,13 @@ const AdminList = props => {
                             <FontAwesomeIcon icon={'edit'} />
                           </NavLink>
                         ) : edit.component || edit.type === 'component' ? (
-                          <edit.action {...item} />
+                          <edit.action
+                            {...item}
+                            listProps={{
+                              children: <FontAwesomeIcon icon={'edit'} />,
+                              className: 'btn btn-outline-dark btn-sm'
+                            }}
+                          />
                         ) : (
                           <Button
                             onClick={() => edit.action(item)}
@@ -272,7 +278,13 @@ const AdminList = props => {
                             <FontAwesomeIcon icon={'times'} />
                           </NavLink>
                         ) : remove.component || remove.type === 'component' ? (
-                          <remove.action {...item} />
+                          <remove.action
+                            {...item}
+                            listProps={{
+                              children: <FontAwesomeIcon icon={'times'} />,
+                              className: 'btn btn-outline-danger btn-sm'
+                            }}
+                          />
                         ) : (
                           <Button
                             onClick={() => remove.action(item)}
