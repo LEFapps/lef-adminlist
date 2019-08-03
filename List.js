@@ -1,5 +1,6 @@
 import React from 'react'
 import { NavLink } from 'react-router-dom'
+import { withRouter } from 'react-router'
 import PropTypes from 'prop-types'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { Table, InputGroup, Input, Button, InputGroupAddon } from 'reactstrap'
@@ -420,6 +421,11 @@ class ListContainer extends React.Component {
   componentWillUnmount () {
     window.removeEventListener('popstate', this.getIds)
   }
+  componentDidUpdate (prevProps) {
+    if (prevProps.location.pathname !== this.props.location.pathname) {
+      this.getIds()
+    }
+  }
   render () {
     return (
       <ListData
@@ -450,4 +456,4 @@ ListContainer.propTypes = {
   onStateChange: PropTypes.func
 }
 
-export default ListContainer
+export default withRouter(ListContainer)
