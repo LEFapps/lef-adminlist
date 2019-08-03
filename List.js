@@ -313,6 +313,12 @@ class ListContainer extends React.Component {
       refreshQuery: false,
       loading: false
     }
+    this.onStateChange = this.onStateChange.bind(this)
+  }
+  onStateChange () {
+    return this.props.onStateChange
+      ? this.props.onStateChange(this.state)
+      : null
   }
   getIds = () => {
     const { page, query, sort } = this.state
@@ -333,8 +339,11 @@ class ListContainer extends React.Component {
     const arg = isString(this.props.getIdsCall)
       ? query
       : merge(query, this.props.getIdsCall.arguments)
+    this.setState({ loading: true }, this.onStateChange)
     Meteor.call(call, arg, params, (e, r) => {
-      if (r) this.setState({ ids: r })
+      if (r) {
+        this.setState({ ids: r, loading: false }, this.onStateChange)
+      }
     })
     this.getTotal()
   }
@@ -345,14 +354,9 @@ class ListContainer extends React.Component {
     const arg = isString(this.props.getTotalCall)
       ? this.state.query
       : merge(this.state.query, this.props.getTotalCall.arguments)
-    this.setState({ laoding: true })
     Meteor.call(call, arg, (e, r) => {
       if (r) {
-        this.setState({ total: r, loading: false }, () =>
-          this.props.onStateChange
-            ? this.props.onStateChange(this.state)
-            : null
-        )
+        this.setState({ total: r }, this.onStateChange)
       }
     })
   }
