@@ -21,7 +21,6 @@ const fields = ['name', 'emails.0.address']
 // subset of columns shown below sm (or folded panel in @lefapps/admin-dashboard)
 const fieldsCompact = ['name', 'score']
 const titles = ['Name', 'Email Address']
-const remove = doc => Meteor.call('removeDoc', doc._id)
 
 // link (recommended)
 const edit = {
@@ -37,6 +36,10 @@ const edit = {
 const edit = {
   action: doc => this.props.history.push(`${this.props.match.url}/edit/${doc._id}`)
 }
+
+// remove action (default)
+// or use the same structure as edit
+const remove = doc => Meteor.call('removeDoc', doc._id)
 
 const extraColumns = [
   {

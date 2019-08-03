@@ -229,18 +229,29 @@ const AdminList = props => {
                     : null}
                   {edit ? (
                     <td className='adminlist-action edit'>
-                      {edit.link || edit.type === 'link' ? (
-                        <NavLink
-                          to={edit.action(item)}
-                          className={'btn btn-outline-dark btn-sm'}
-                        >
-                          <FontAwesomeIcon icon={'edit'} />
-                        </NavLink>
-                      ) : edit.component || edit.type === 'component' ? (
-                        <edit.action {...item} />
+                      {edit.action ? (
+                        edit.link || edit.type === 'link' ? (
+                          <NavLink
+                            to={edit.action(item)}
+                            className={'btn btn-outline-dark btn-sm'}
+                          >
+                            <FontAwesomeIcon icon={'edit'} />
+                          </NavLink>
+                        ) : edit.component || edit.type === 'component' ? (
+                          <edit.action {...item} />
+                        ) : (
+                          <Button
+                            onClick={() => edit.action(item)}
+                            outline
+                            size='sm'
+                            color='dark'
+                          >
+                            <FontAwesomeIcon icon={'edit'} />
+                          </Button>
+                        )
                       ) : (
                         <Button
-                          onClick={() => edit.action(item)}
+                          onClick={() => edit(item)}
                           outline
                           size='sm'
                           color='dark'
@@ -252,14 +263,36 @@ const AdminList = props => {
                   ) : null}
                   {remove ? (
                     <td className='adminlist-action remove'>
-                      <Button
-                        onClick={() => remove(item)}
-                        outline
-                        size='sm'
-                        color='danger'
-                      >
-                        <FontAwesomeIcon icon={'times'} />
-                      </Button>
+                      {remove.action ? (
+                        remove.link || remove.type === 'link' ? (
+                          <NavLink
+                            to={remove.action(item)}
+                            className={'btn btn-outline-danger btn-sm'}
+                          >
+                            <FontAwesomeIcon icon={'times'} />
+                          </NavLink>
+                        ) : remove.component || remove.type === 'component' ? (
+                          <remove.action {...item} />
+                        ) : (
+                          <Button
+                            onClick={() => remove.action(item)}
+                            outline
+                            size='sm'
+                            color='danger'
+                          >
+                            <FontAwesomeIcon icon={'times'} />
+                          </Button>
+                        )
+                      ) : (
+                        <Button
+                          onClick={() => remove(item)}
+                          outline
+                          size='sm'
+                          color='danger'
+                        >
+                          <FontAwesomeIcon icon={'times'} />
+                        </Button>
+                      )}
                     </td>
                   ) : null}
                 </tr>
