@@ -39,6 +39,7 @@ const AdminList = props => {
     changeQuery,
     changeSort,
     remove,
+    removeItem,
     extraColumns,
     defaultQuery
   } = props
@@ -297,7 +298,7 @@ const AdminList = props => {
                         )
                       ) : (
                         <Button
-                          onClick={() => remove(item)}
+                          onClick={() => removeItem(item)}
                           outline
                           size='sm'
                           color='danger'
@@ -460,7 +461,8 @@ class ListContainer extends React.Component {
     )
   }
   removeItem = item => {
-    this.props.remove(item)
+    const remove = this.props.remove.action || this.props.remove
+    remove(item)
     this.getIds()
   }
   componentDidMount () {
@@ -480,7 +482,7 @@ class ListContainer extends React.Component {
       <ListData
         {...this.props}
         {...this.state}
-        remove={this.props.remove ? this.removeItem : false}
+        removeItem={this.props.remove ? this.removeItem : false}
         setPage={this.setPage}
         changeQuery={this.changeQuery}
         changeSort={this.changeSort}
@@ -498,8 +500,8 @@ ListContainer.propTypes = {
   getTotalCall: PropTypes.oneOfType([PropTypes.string, PropTypes.object])
     .isRequired,
   fields: PropTypes.arrayOf(PropTypes.string).isRequired,
-  edit: PropTypes.oneOfType([PropTypes.object, PropTypes.func]),
-  remove: PropTypes.func,
+  edit: PropTypes.oneOfType([PropTypes.func, PropTypes.object]),
+  remove: PropTypes.oneOfType([PropTypes.func, PropTypes.object]),
   extraColumns: PropTypes.array,
   defaultQuery: PropTypes.object,
   onStateChange: PropTypes.func
