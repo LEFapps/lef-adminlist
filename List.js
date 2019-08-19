@@ -348,6 +348,7 @@ const ListData = withTracker(
 let searchTimer
 
 class ListContainer extends React.Component {
+  _isMounted = false
   constructor (props) {
     super(props)
     this.state = {
@@ -365,6 +366,20 @@ class ListContainer extends React.Component {
     return this.props.onStateChange
       ? this.props.onStateChange(this.state)
       : null
+  }
+  componentDidMount () {
+    this._isMounted = true
+    this.getIds()
+    window.addEventListener('popstate', this.getIds)
+  }
+  componentWillUnmount () {
+    this._isMounted = false
+    window.removeEventListener('popstate', this.getIds)
+  }
+  componentDidUpdate (prevProps) {
+    if (prevProps.location.pathname !== this.props.location.pathname) {
+      this.getIds()
+    }
   }
   getIds = () => {
     const { page, query, sort } = this.state
@@ -387,7 +402,7 @@ class ListContainer extends React.Component {
       : merge(query, this.props.getIdsCall.arguments)
     this.setState({ loading: true }, this.onStateChange)
     Meteor.call(call, arg, params, (e, r) => {
-      if (r) {
+      if (r && this._isMounted) {
         this.setState({ ids: r, loading: false }, this.onStateChange)
       }
     })
@@ -401,7 +416,7 @@ class ListContainer extends React.Component {
       ? this.state.query
       : merge(this.state.query, this.props.getTotalCall.arguments)
     Meteor.call(call, arg, (e, r) => {
-      if (r) {
+      if (r && this._isMounted) {
         this.setState({ total: r }, this.onStateChange)
       }
     })
@@ -464,18 +479,6 @@ class ListContainer extends React.Component {
     const remove = this.props.remove.action || this.props.remove
     remove(item)
     this.getIds()
-  }
-  componentDidMount () {
-    this.getIds()
-    window.addEventListener('popstate', this.getIds)
-  }
-  componentWillUnmount () {
-    window.removeEventListener('popstate', this.getIds)
-  }
-  componentDidUpdate (prevProps) {
-    if (prevProps.location.pathname !== this.props.location.pathname) {
-      this.getIds()
-    }
   }
   render () {
     return (
