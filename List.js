@@ -27,6 +27,8 @@ const xColConvert = xcols =>
     return defaults(xcol, { value: () => '', label: '', fields: [] })
   })
 
+const defaultLimit = 20
+
 const AdminList = props => {
   const {
     loading,
@@ -217,7 +219,7 @@ const AdminList = props => {
           )}
         </tbody>
       </Table>
-      <Pagination {...props} />
+      <Pagination {...props} limit={defaultLimit} />
     </div>
   )
 }
@@ -271,8 +273,8 @@ class ListContainer extends React.Component {
     const { defaultQuery = {} } = this.props
     const params = {
       sort,
-      limit: 20,
-      skip: (page - 1) * 20
+      limit: defaultLimit,
+      skip: (page - 1) * defaultLimit
     }
     forEach(defaultQuery, (v, k) => {
       if (v) {
@@ -399,3 +401,4 @@ ListContainer.propTypes = {
 }
 
 export default ListContainer
+export { Pagination }

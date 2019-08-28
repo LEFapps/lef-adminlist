@@ -6,15 +6,17 @@ import {
 } from 'reactstrap'
 import PropTypes from 'prop-types'
 
-const Pagination = ({ total, page, setPage }) => {
+const range = 5
+
+const Pagination = ({ limit = 20, total, page, setPage }) => {
   if (!total) return null
-  if (total >= 0 && total <= 20) return null
+  if (total >= 0 && total <= limit) return null
   else {
-    const numberOfPages = Math.ceil(total / 20)
-    let startRange = Math.ceil(page / 10) * 10 - 9
+    const numberOfPages = Math.ceil(total / limit)
+    let startRange = Math.ceil(page / range) * range - (range - 1)
     const startPage = startRange
     if (startRange < 1) startPage = 1
-    let endRange = startRange + 9
+    let endRange = startRange + range - 1
     if (endRange > numberOfPages) endRange = numberOfPages
     const pagesArr = [...Array(endRange - startRange + 1).keys()].map(
       x => startPage + x
@@ -22,31 +24,34 @@ const Pagination = ({ total, page, setPage }) => {
     return (
       <PaginationStyle className='justify-content-center'>
         {/* Previous 1 */}
-        {page > 1
-          ? <PaginationItem>
+        {page > 1 ? (
+          <PaginationItem>
             <PaginationLink
               previous
               href='#'
               onClick={() => setPage(page - 1)}
             />
           </PaginationItem>
-          : null}
+        ) : null}
         {/* First page */}
-        {page > 10
-          ? <PaginationItem>
+        {page > range ? (
+          <PaginationItem>
             <PaginationLink href='#' onClick={() => setPage(1)}>
-                1
+              1
             </PaginationLink>
           </PaginationItem>
-          : null}
+        ) : null}
         {/* Previous 10 */}
-        {page > 10
-          ? <PaginationItem>
-            <PaginationLink href='#' onClick={() => setPage(startRange - 10)}>
-                ...
+        {page > range ? (
+          <PaginationItem>
+            <PaginationLink
+              href='#'
+              onClick={() => setPage(startRange - range)}
+            >
+              ...
             </PaginationLink>
           </PaginationItem>
-          : null}
+        ) : null}
         {/* Visible pages */}
         {pagesArr.map(p => {
           return (
@@ -58,27 +63,27 @@ const Pagination = ({ total, page, setPage }) => {
           )
         })}
         {/* Next 10 */}
-        {endRange < numberOfPages
-          ? <PaginationItem>
+        {endRange < numberOfPages ? (
+          <PaginationItem>
             <PaginationLink href='#' onClick={() => setPage(endRange + 1)}>
-                ...
+              ...
             </PaginationLink>
           </PaginationItem>
-          : null}
+        ) : null}
         {/* Last page */}
-        {endRange < numberOfPages
-          ? <PaginationItem>
+        {endRange < numberOfPages ? (
+          <PaginationItem>
             <PaginationLink href='#' onClick={() => setPage(numberOfPages)}>
               {numberOfPages}
             </PaginationLink>
           </PaginationItem>
-          : null}
+        ) : null}
         {/* Next 1 */}
-        {page < numberOfPages
-          ? <PaginationItem>
+        {page < numberOfPages ? (
+          <PaginationItem>
             <PaginationLink next href='#' onClick={() => setPage(page + 1)} />
           </PaginationItem>
-          : null}
+        ) : null}
       </PaginationStyle>
     )
   }
