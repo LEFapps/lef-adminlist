@@ -16,28 +16,40 @@ Use the `<List />` component to create a list of data with filter, pagination an
 import List from 'meteor/lef:adminlist'
 import Collection from './somewhere'
 
+// fields directly shown as columns
 const fields = ['name', 'emails.0.address']
-const titles = ['naam', 'emailadres']
-const remove = doc => Meteor.call('removeDoc', doc._id)
+// subset of columns shown below sm (or folded panel in @lefapps/admin-dashboard)
+const fieldsCompact = ['name', 'score']
+const titles = ['Name', 'Email Address']
 
-// edit link (recommended)
+// link (recommended)
 const edit = {
   action: doc => `${this.props.match.url}/edit/${doc._id}`,
-  link: true
+  type: 'link'
 }
-// or create a custom action (e.g. popup, do not us this for routing – UX)
+// component (listProps exposes default children (icon), className)
 const edit = {
-  action: doc => this.props.history.push(`${this.props.match.url}/edit/${doc._id}`),
-  link: false
+  action: ({°id, listProps }) => <Link to={_id} {...listProps} />,
+  type: 'component'
 }
+// or create a custom action (e.g. popup, do not use this for routing – UX)
+const edit = {
+  action: doc => this.props.history.push(`${this.props.match.url}/edit/${doc._id}`)
+}
+
+// remove action (default)
+// or use the same structure as edit
+const remove = doc => Meteor.call('removeDoc', doc._id)
 
 const extraColumns = [
   {
+    name: 'fullname', // used to match compact
     value: ({ firstname, lastname }) => firstname + ' ' + lastname,
     label: 'Full Name', // title of custom column
     fields: ['firstname','lastname'] // list of fields needed for this column
   },
   {
+    name: 'score',
     value: doc => Math.round(doc.percentage * 100),
     label: 'Score',
     fields: ['percentage'],
@@ -62,6 +74,7 @@ const stateHasChanged = ({ page, total, sort, ...childState }) => this.setState(
   // or: getIdsCall={{call:'methodName',arguments:'methodArguments'}}
   subscription='subscription'
   fields={fields}
+  fieldsCompact={fieldsCompact}
   getTotalCall='totalDocs'
   // or: getTotalCall={{call:'methodName',arguments:'methodArguments'}}
   defaultQuery={{ type: 'only_show_this_type' }}
@@ -74,36 +87,31 @@ const stateHasChanged = ({ page, total, sort, ...childState }) => this.setState(
 
 ## Server side
 
-### Getting the id's
-
-```JS
-Meteor.methods({
-  getIds: (query, params) => {
-    return Collection.find(query, params).map(({ _id }) => _id)
-  }
-})
-```
-
 ### Publish function
 
-The publish function server side should look like this.
-
 ```JS
-Meteor.publish("subscription", (query, params = {}) => {
-  return Collection.find(query, params);
-});
+// inject your logic before returning (security, filtering deleted, …)
+// this function is reusable for required methods
+const getItems = (query = {}, params = {}) => Collection.find(query, params)
+
+Meteor.publish("subscription", getItems)
 ```
 
-### Meteor method
+### Getting the ids
+
+Provide a Meteor method to get the ids for the current query.
+
+```JS
+Meteor.methods({ getIds: (query, params) => getItems(query, params).map(({ _id }) => _id) })
+```
+
+
+### Get the amount
 
 Provide a Meteor method to get a total document count.
 
 ```JS
-Meteor.methods({
-  totalDocs: (query) => {
-    return Modules.find(query).count();
-  }
-});
+Meteor.methods({ getTotals: (query, params) => getItems(query, params).count() })
 ```
 
 ### onStateChange
@@ -123,7 +131,8 @@ This function receives the latest state of the list `({ page, total, sort, query
 Import a file with this structure on startup:
 
 ```JS
-import { library } from '@fortawesome/fontawesome'
+import { library } from '@fortawesome/fontawesome-svg-core'
 import { ...icons } from '@fortawesome/free-solid-svg-icons'
+
 library.add(...icons)
 ```

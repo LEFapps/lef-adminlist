@@ -1,5 +1,6 @@
 import React from 'react'
-import { Link } from 'react-router-dom'
+import { NavLink } from 'react-router-dom'
+import { withRouter } from 'react-router'
 import PropTypes from 'prop-types'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { Table, InputGroup, Input, Button, InputGroupAddon } from 'reactstrap'
@@ -24,7 +25,7 @@ import './layout.css'
 
 const xColConvert = xcols =>
   (xcols || []).map(xcol => {
-    return defaults(xcol, { value: () => '', label: '', fields: [] })
+    return defaults(xcol, { name: '', label: '', value: () => '', fields: [] })
   })
 
 const defaultLimit = 20
@@ -35,11 +36,14 @@ const AdminList = props => {
     data,
     sort,
     fields,
+    fieldsCompact,
     titles,
     changeQuery,
     changeSort,
     remove,
-    extraColumns
+    removeItem,
+    extraColumns,
+    defaultQuery
   } = props
   const columns = xColConvert(extraColumns)
   const columnCount =
@@ -57,44 +61,69 @@ const AdminList = props => {
   const edit = props.edit
     ? defaults(props.edit, { action: () => null, link: false })
     : props.edit
+  const compactClass = match => {
+    if (!fieldsCompact) return ''
+    const index = fieldsCompact.indexOf(match)
+    return index >= 0
+      ? `order-${index} adminlist-compact`
+      : 'd-none d-sm-table-cell adminlist-expand'
+  }
   return (
-    <div className={'adminlist table-responsive-md'}>
+    <div
+      className={`adminlist table-responsive-md${
+        fieldsCompact && fieldsCompact.length
+          ? ' adminlist-compact'
+          : ' adminlist-expand'
+      }`}
+    >
       <Table hover>
         <thead>
-          <tr>
-            {fields.map((field, i) => {
-              return (
-                <th key={i}>
-                  <div className={'adminlist-th'}>
-                    {titles ? titles[i] : upperFirst(last(field.split('.')))}{' '}
-                    <Button
-                      onClick={() => changeSort(field)}
-                      outline
-                      size='sm'
-                      className={'float-right'}
-                    >
-                      <FontAwesomeIcon icon={sortIcon(field)} />
-                    </Button>
-                  </div>
-                </th>
-              )
-            })}
+          <tr className={'adminlist-labels'}>
+            {fields.map((field, i) => (
+              <th key={i} className={compactClass(field)}>
+                <div className={'adminlist-th'}>
+                  {titles ? titles[i] : upperFirst(last(field.split('.')))}{' '}
+                  <Button
+                    onClick={() => changeSort(field)}
+                    outline
+                    size='sm'
+                    className={'float-right'}
+                  >
+                    <FontAwesomeIcon icon={sortIcon(field)} />
+                  </Button>
+                </div>
+              </th>
+            ))}
             {columns
               ? columns.map((column, i) => (
-                <th key={`${i}-column`}>{column.label}</th>
+                <th key={`${i}-column`} className={compactClass(column.name)}>
+                  {column.label}
+                </th>
               ))
               : null}
             {edit ? <th /> : null}
             {remove ? <th /> : null}
           </tr>
-        </thead>
-        <tbody>
-          <tr>
-            {fields.map(field => {
+          <tr className={'adminlist-filters'}>
+            {fields.map((field, i) => {
+              const defaultValue = defaultQuery
+                ? defaultQuery[field]
+                : undefined
+              const searchParams = { defaultValue, disabled: !!defaultValue }
               return (
-                <td key={`search-${field}`}>
+                <td key={`search-${field}`} className={compactClass(field)}>
                   <InputGroup size={'sm'} style={{ flexWrap: 'nowrap' }}>
-                    <Input onKeyUp={e => changeQuery(field, e.target.value)} />
+                    <Input
+                      onKeyUp={e => changeQuery(field, e.target.value)}
+                      placeholder={
+                        titles
+                          ? titles[i] && isString(titles[i])
+                            ? titles[i] || field
+                            : field
+                          : field
+                      }
+                      {...searchParams}
+                    />
                     <InputGroupAddon addonType='append'>
                       <Button>
                         <FontAwesomeIcon icon={'search'} />
@@ -107,7 +136,10 @@ const AdminList = props => {
             {columns
               ? columns.map((column, i) =>
                 column.search ? (
-                  <td key={`${i}-column-search`}>
+                  <td
+                    key={`${i}-column-search`}
+                    className={compactClass(column.name)}
+                  >
                     <InputGroup size={'sm'} style={{ flexWrap: 'nowrap' }}>
                       {typeof column.search === 'function' ? (
                         <Input
@@ -117,6 +149,7 @@ const AdminList = props => {
                               changeQuery
                             })
                           }
+                          placeholder={column.label || column.name}
                         />
                       ) : (
                         <Input
@@ -144,6 +177,8 @@ const AdminList = props => {
             {edit ? <td /> : null}
             {remove ? <td /> : null}
           </tr>
+        </thead>
+        <tbody>
           {loading ? (
             <tr>
               <td colSpan={columnCount}>
@@ -160,7 +195,15 @@ const AdminList = props => {
                   {fields.map(field => {
                     const value = get(item, field, '')
                     return (
-                      <td key={`${item._id}-${field}`}>
+                      <td
+                        key={`${item._id}-${field}`}
+                        className={
+                          compactClass(field) +
+                          (typeof value === 'boolean'
+                            ? `text-${value ? 'success' : 'danger'}`
+                            : '')
+                        }
+                      >
                         {typeof value === 'boolean' ? (
                           value ? (
                             <FontAwesomeIcon icon='check' />
@@ -169,6 +212,8 @@ const AdminList = props => {
                           )
                         ) : isDate(value) ? (
                           value.toDateString()
+                        ) : isArray(value) ? (
+                          value.join(', ')
                         ) : (
                           value
                         )}
@@ -177,21 +222,45 @@ const AdminList = props => {
                   })}
                   {columns
                     ? columns.map((column, i) => (
-                      <td key={`${i}c-${item._id}`}>{column.value(item)}</td>
+                      <td
+                        key={`${i}c-${item._id}`}
+                        className={compactClass(column.name)}
+                      >
+                        {column.value(item)}
+                      </td>
                     ))
                     : null}
                   {edit ? (
-                    <td>
-                      {edit.link ? (
-                        <Link
-                          to={edit.action(item)}
-                          className={'btn btn-outline-dark btn-sm'}
-                        >
-                          <FontAwesomeIcon icon={'edit'} />
-                        </Link>
+                    <td className='adminlist-action edit'>
+                      {edit.action ? (
+                        edit.link || edit.type === 'link' ? (
+                          <NavLink
+                            to={edit.action(item)}
+                            className={'btn btn-outline-dark btn-sm'}
+                          >
+                            <FontAwesomeIcon icon={'edit'} />
+                          </NavLink>
+                        ) : edit.component || edit.type === 'component' ? (
+                          <edit.action
+                            {...item}
+                            listProps={{
+                              children: <FontAwesomeIcon icon={'edit'} />,
+                              className: 'btn btn-outline-dark btn-sm'
+                            }}
+                          />
+                        ) : (
+                          <Button
+                            onClick={() => edit.action(item)}
+                            outline
+                            size='sm'
+                            color='dark'
+                          >
+                            <FontAwesomeIcon icon={'edit'} />
+                          </Button>
+                        )
                       ) : (
                         <Button
-                          onClick={() => edit.action(item)}
+                          onClick={() => edit(item)}
                           outline
                           size='sm'
                           color='dark'
@@ -202,15 +271,43 @@ const AdminList = props => {
                     </td>
                   ) : null}
                   {remove ? (
-                    <td>
-                      <Button
-                        onClick={() => remove(item)}
-                        outline
-                        size='sm'
-                        color='danger'
-                      >
-                        <FontAwesomeIcon icon={'times'} />
-                      </Button>
+                    <td className='adminlist-action remove'>
+                      {remove.action ? (
+                        remove.link || remove.type === 'link' ? (
+                          <NavLink
+                            to={remove.action(item)}
+                            className={'btn btn-outline-danger btn-sm'}
+                          >
+                            <FontAwesomeIcon icon={'times'} />
+                          </NavLink>
+                        ) : remove.component || remove.type === 'component' ? (
+                          <remove.action
+                            {...item}
+                            listProps={{
+                              children: <FontAwesomeIcon icon={'times'} />,
+                              className: 'btn btn-outline-danger btn-sm'
+                            }}
+                          />
+                        ) : (
+                          <Button
+                            onClick={() => remove.action(item)}
+                            outline
+                            size='sm'
+                            color='danger'
+                          >
+                            <FontAwesomeIcon icon={'times'} />
+                          </Button>
+                        )
+                      ) : (
+                        <Button
+                          onClick={() => removeItem(item)}
+                          outline
+                          size='sm'
+                          color='danger'
+                        >
+                          <FontAwesomeIcon icon={'times'} />
+                        </Button>
+                      )}
                     </td>
                   ) : null}
                 </tr>
@@ -242,21 +339,18 @@ const ListData = withTracker(
     if (columns) {
       ;(columns || []).map(col => col.fields.map(f => (fieldObj[f] = 1)))
     }
-    const handle = Meteor.subscribe(
-      subscription,
-      { _id: { $in: ids || [] } },
-      { fields: fieldObj }
-    )
-    return {
-      loading: !handle.ready(),
-      data: collection.find({ _id: { $in: ids || [] } }, { sort }).fetch()
-    }
+    const query = { _id: { $in: ids || [] } }
+    const handle = Meteor.subscribe(subscription, query, { fields: fieldObj })
+    const loading = !handle.ready()
+    const data = collection.find(query, { sort }).fetch()
+    return { loading, data }
   }
 )(AdminList)
 
 let searchTimer
 
 class ListContainer extends React.Component {
+  _isMounted = false
   constructor (props) {
     super(props)
     this.state = {
@@ -265,7 +359,28 @@ class ListContainer extends React.Component {
       query: {},
       ids: null,
       sort: {},
-      refreshQuery: false
+      refreshQuery: false,
+      loading: false
+    }
+    this.onStateChange = this.onStateChange.bind(this)
+  }
+  onStateChange () {
+    return this.props.onStateChange
+      ? this.props.onStateChange(this.state)
+      : null
+  }
+  componentDidMount () {
+    this._isMounted = true
+    this.getIds()
+    window.addEventListener('popstate', this.getIds)
+  }
+  componentWillUnmount () {
+    this._isMounted = false
+    window.removeEventListener('popstate', this.getIds)
+  }
+  componentDidUpdate (prevProps) {
+    if (prevProps.location.pathname !== this.props.location.pathname) {
+      this.getIds()
     }
   }
   getIds = () => {
@@ -287,8 +402,11 @@ class ListContainer extends React.Component {
     const arg = isString(this.props.getIdsCall)
       ? query
       : merge(query, this.props.getIdsCall.arguments)
+    this.setState({ loading: true }, this.onStateChange)
     Meteor.call(call, arg, params, (e, r) => {
-      if (r) this.setState({ ids: r })
+      if (r && this._isMounted) {
+        this.setState({ ids: r, loading: false }, this.onStateChange)
+      }
     })
     this.getTotal()
   }
@@ -300,12 +418,8 @@ class ListContainer extends React.Component {
       ? this.state.query
       : merge(this.state.query, this.props.getTotalCall.arguments)
     Meteor.call(call, arg, (e, r) => {
-      if (r) {
-        this.setState({ total: r }, () =>
-          this.props.onStateChange
-            ? this.props.onStateChange(this.state)
-            : null
-        )
+      if (r && this._isMounted) {
+        this.setState({ total: r }, this.onStateChange)
       }
     })
   }
@@ -364,10 +478,8 @@ class ListContainer extends React.Component {
     )
   }
   removeItem = item => {
-    this.props.remove(item)
-    this.getIds()
-  }
-  componentDidMount () {
+    const remove = this.props.remove.action || this.props.remove
+    remove(item)
     this.getIds()
   }
   render () {
@@ -375,7 +487,7 @@ class ListContainer extends React.Component {
       <ListData
         {...this.props}
         {...this.state}
-        remove={this.props.remove ? this.removeItem : false}
+        removeItem={this.props.remove ? this.removeItem : false}
         setPage={this.setPage}
         changeQuery={this.changeQuery}
         changeSort={this.changeSort}
@@ -393,12 +505,12 @@ ListContainer.propTypes = {
   getTotalCall: PropTypes.oneOfType([PropTypes.string, PropTypes.object])
     .isRequired,
   fields: PropTypes.arrayOf(PropTypes.string).isRequired,
-  edit: PropTypes.oneOfType([PropTypes.object, PropTypes.func]),
-  remove: PropTypes.func,
+  edit: PropTypes.oneOfType([PropTypes.func, PropTypes.object]),
+  remove: PropTypes.oneOfType([PropTypes.func, PropTypes.object]),
   extraColumns: PropTypes.array,
   defaultQuery: PropTypes.object,
   onStateChange: PropTypes.func
 }
 
-export default ListContainer
+export default withRouter(ListContainer)
 export { Pagination }
