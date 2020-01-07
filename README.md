@@ -17,10 +17,10 @@ import List from 'meteor/lef:adminlist'
 import Collection from './somewhere'
 
 // fields directly shown as columns
-const fields = ['name', 'emails.0.address']
+const fields = ['name', 'emails.0.address', 'imageField']
 // subset of columns shown below sm (or folded panel in @lefapps/admin-dashboard)
 const fieldsCompact = ['name', 'score']
-const titles = ['Name', 'Email Address']
+const titles = ['Name', 'Email Address', 'Profile image']
 
 // link (recommended)
 const edit = {
@@ -66,6 +66,12 @@ const extraColumns = [
   },
 ]
 
+// set prefix for displaying of images
+// ! no trailing forward slash: '/'
+const prefix = {
+  imageField: 'https://s3-eu-west-1.amazonaws.com/your-bucket'
+}
+
 const stateHasChanged = ({ page, total, sort, ...childState }) => this.setState({ showList: !!total })
 
 <List
@@ -82,6 +88,7 @@ const stateHasChanged = ({ page, total, sort, ...childState }) => this.setState(
   edit={edit}
   extraColumns={extraColumns}
   onStateChange={stateHasChanged}
+  urlPrefix={prefix}
 />
 ```
 

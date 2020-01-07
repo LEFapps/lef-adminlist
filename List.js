@@ -16,7 +16,9 @@ import {
   last,
   merge,
   size,
-  upperFirst
+  upperFirst,
+  truncate,
+  isBoolean
 } from 'lodash'
 
 import Pagination from './Pagination'
@@ -29,6 +31,32 @@ const xColConvert = xcols =>
   })
 
 const defaultLimit = 20
+
+const displayValue = (field, value, prefix) => {
+  switch (true) {
+    case isFunction(value):
+      return value()
+    case isBoolean(value):
+      return value ? (
+        <FontAwesomeIcon icon='check' />
+      ) : (
+        <FontAwesomeIcon icon='times' />
+      )
+    case isDate(value):
+      return value.toDateString()
+    case isArray(value):
+      return value.join(', ')
+    case /\.(gif|jpg|jpeg|tiff|png)$/i.test(value):
+      return (
+        <img
+          src={prefix[field] + '/' + value}
+          style={{ maxWidth: '220px', maxHeight: '100px' }}
+        />
+      )
+    default:
+      return truncate(value)
+  }
+}
 
 const AdminList = props => {
   const {
@@ -43,7 +71,8 @@ const AdminList = props => {
     remove,
     removeItem,
     extraColumns,
-    defaultQuery
+    defaultQuery,
+    urlPrefix
   } = props
   const columns = xColConvert(extraColumns)
   const columnCount =
@@ -96,10 +125,10 @@ const AdminList = props => {
             ))}
             {columns
               ? columns.map((column, i) => (
-                <th key={`${i}-column`} className={compactClass(column.name)}>
-                  {column.label}
-                </th>
-              ))
+                  <th key={`${i}-column`} className={compactClass(column.name)}>
+                    {column.label}
+                  </th>
+                ))
               : null}
             {edit ? <th /> : null}
             {remove ? <th /> : null}
@@ -135,44 +164,44 @@ const AdminList = props => {
             })}
             {columns
               ? columns.map((column, i) =>
-                column.search ? (
-                  <td
-                    key={`${i}-column-search`}
-                    className={compactClass(column.name)}
-                  >
-                    <InputGroup size={'sm'} style={{ flexWrap: 'nowrap' }}>
-                      {typeof column.search === 'function' ? (
-                        <Input
-                          onKeyUp={e =>
-                            column.search({
-                              value: e.target.value,
-                              changeQuery
-                            })
-                          }
-                          placeholder={column.label || column.name}
-                        />
-                      ) : (
-                        <Input
-                          onKeyUp={e =>
-                            changeQuery(
-                              column.search.fields,
-                              column.search.value(e.target.value)
-                            )
-                          }
-                        />
-                      )}
+                  column.search ? (
+                    <td
+                      key={`${i}-column-search`}
+                      className={compactClass(column.name)}
+                    >
+                      <InputGroup size={'sm'} style={{ flexWrap: 'nowrap' }}>
+                        {typeof column.search === 'function' ? (
+                          <Input
+                            onKeyUp={e =>
+                              column.search({
+                                value: e.target.value,
+                                changeQuery
+                              })
+                            }
+                            placeholder={column.label || column.name}
+                          />
+                        ) : (
+                          <Input
+                            onKeyUp={e =>
+                              changeQuery(
+                                column.search.fields,
+                                column.search.value(e.target.value)
+                              )
+                            }
+                          />
+                        )}
 
-                      <InputGroupAddon addonType='append'>
-                        <Button>
-                          <FontAwesomeIcon icon={'search'} />
-                        </Button>
-                      </InputGroupAddon>
-                    </InputGroup>
-                  </td>
-                ) : (
-                  <td key={`${i}-column-search`} />
+                        <InputGroupAddon addonType='append'>
+                          <Button>
+                            <FontAwesomeIcon icon={'search'} />
+                          </Button>
+                        </InputGroupAddon>
+                      </InputGroup>
+                    </td>
+                  ) : (
+                    <td key={`${i}-column-search`} />
+                  )
                 )
-              )
               : null}
             {edit ? <td /> : null}
             {remove ? <td /> : null}
@@ -199,36 +228,24 @@ const AdminList = props => {
                         key={`${item._id}-${field}`}
                         className={
                           compactClass(field) +
-                          (typeof value === 'boolean'
+                          (isBoolean(value)
                             ? `text-${value ? 'success' : 'danger'}`
                             : '')
                         }
                       >
-                        {typeof value === 'boolean' ? (
-                          value ? (
-                            <FontAwesomeIcon icon='check' />
-                          ) : (
-                            <FontAwesomeIcon icon='times' />
-                          )
-                        ) : isDate(value) ? (
-                          value.toDateString()
-                        ) : isArray(value) ? (
-                          value.join(', ')
-                        ) : (
-                          value
-                        )}
+                        {displayValue(field, value, urlPrefix)}
                       </td>
                     )
                   })}
                   {columns
                     ? columns.map((column, i) => (
-                      <td
-                        key={`${i}c-${item._id}`}
-                        className={compactClass(column.name)}
-                      >
-                        {column.value(item)}
-                      </td>
-                    ))
+                        <td
+                          key={`${i}c-${item._id}`}
+                          className={compactClass(column.name)}
+                        >
+                          {column.value(item)}
+                        </td>
+                      ))
                     : null}
                   {edit ? (
                     <td className='adminlist-action edit'>
@@ -328,7 +345,8 @@ AdminList.propTypes = {
   titels: PropTypes.array,
   query: PropTypes.object.isRequired,
   changeQuery: PropTypes.func.isRequired,
-  total: PropTypes.number.isRequired
+  total: PropTypes.number.isRequired,
+  urlPrefix: PropTypes.object
 }
 
 const ListData = withTracker(
