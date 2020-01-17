@@ -350,7 +350,21 @@ AdminList.propTypes = {
 }
 
 const ListData = withTracker(
-  ({ collection, subscription, sort, fields, extraColumns, ids }) => {
+  ({
+    collection,
+    subscription,
+    sort,
+    fields,
+    extraColumns,
+    ids,
+    page,
+    aggregate
+  }) => {
+    const params = {}
+    if (aggregate) {
+      params.limit = defaultLimit
+      params.skip = (page - 1) * defaultLimit
+    }
     const columns = xColConvert(extraColumns)
     const fieldObj = {}
     fields.map(field => (fieldObj[field] = 1))
@@ -358,7 +372,10 @@ const ListData = withTracker(
       ;(columns || []).map(col => col.fields.map(f => (fieldObj[f] = 1)))
     }
     const query = { _id: { $in: ids || [] } }
-    const handle = Meteor.subscribe(subscription, query, { fields: fieldObj })
+    const handle = Meteor.subscribe(subscription, query, {
+      fields: fieldObj,
+      ...params
+    })
     const loading = !handle.ready()
     const data = collection.find(query, { sort }).fetch()
     return { loading, data }
@@ -403,11 +420,11 @@ class ListContainer extends React.Component {
   }
   getIds = () => {
     const { page, query, sort } = this.state
-    const { defaultQuery = {} } = this.props
-    const params = {
-      sort,
-      limit: defaultLimit,
-      skip: (page - 1) * defaultLimit
+    const { defaultQuery = {}, aggregate } = this.props
+    const params = { sort }
+    if (!aggregate) {
+      params.limit = defaultLimit
+      params.skip = (page - 1) * defaultLimit
     }
     forEach(defaultQuery, (v, k) => {
       if (v) {
@@ -527,7 +544,8 @@ ListContainer.propTypes = {
   remove: PropTypes.oneOfType([PropTypes.func, PropTypes.object]),
   extraColumns: PropTypes.array,
   defaultQuery: PropTypes.object,
-  onStateChange: PropTypes.func
+  onStateChange: PropTypes.func,
+  aggregate: PropTypes.bool
 }
 
 export default withRouter(ListContainer)
