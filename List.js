@@ -413,9 +413,11 @@ class ListContainer extends React.Component {
     this._isMounted = false
     window.removeEventListener('popstate', this.getIds)
   }
-  componentDidUpdate (prevProps) {
-    if (prevProps.location.pathname !== this.props.location.pathname) {
-      this.getIds()
+  componentDidUpdate ({ location, forceRefresh }) {
+    switch (true) {
+      case location.pathname !== this.props.location.pathname:
+      case forceRefresh !== this.props.forceRefresh:
+        return this.getIds()
     }
   }
   getIds = () => {
