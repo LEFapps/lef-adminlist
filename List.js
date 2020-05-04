@@ -145,11 +145,11 @@ const AdminList = props => {
                     <Input
                       onKeyUp={e => changeQuery(field, e.target.value)}
                       placeholder={
-                        titles
-                          ? titles[i] && isString(titles[i])
-                            ? titles[i] || field
-                            : field
-                          : field
+                        (titles &&
+                          titles[i] &&
+                          isString(titles[i]) &&
+                          titles[i]) ||
+                        ''
                       }
                       {...searchParams}
                     />
