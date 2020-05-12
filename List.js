@@ -54,7 +54,7 @@ const displayValue = (field, value, prefix) => {
         />
       )
     default:
-      return truncate(value)
+      return truncate(value, { length: 64, separator: ' ', omission: '…' })
   }
 }
 
