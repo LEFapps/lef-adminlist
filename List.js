@@ -333,7 +333,7 @@ const AdminList = props => {
           )}
         </tbody>
       </Table>
-      <Pagination {...props} limit={defaultLimit} />
+      <Pagination {...props} pages={Math.ceil(props.total / defaultLimit)} />
     </div>
   )
 }
@@ -363,7 +363,7 @@ const ListData = withTracker(
     const params = {}
     if (aggregate) {
       params.limit = defaultLimit
-      params.skip = (page - 1) * defaultLimit
+      params.skip = page * defaultLimit
     }
     const columns = xColConvert(extraColumns)
     const fieldObj = {}
@@ -389,7 +389,7 @@ class ListContainer extends React.Component {
   constructor (props) {
     super(props)
     this.state = {
-      page: 1,
+      page: 0,
       total: 0,
       query: {},
       ids: null,
@@ -426,7 +426,7 @@ class ListContainer extends React.Component {
     const params = { sort }
     if (!aggregate) {
       params.limit = defaultLimit
-      params.skip = (page - 1) * defaultLimit
+      params.skip = page * defaultLimit
     }
     forEach(defaultQuery, (v, k) => {
       if (v) {
@@ -471,7 +471,7 @@ class ListContainer extends React.Component {
     if (!value) delete query[key]
     this.setState(
       prevState => ({
-        page: 1,
+        page: 0,
         query,
         refreshQuery: !prevState.refreshQuery
       }),
@@ -507,7 +507,7 @@ class ListContainer extends React.Component {
     }
     this.setState(
       prevState => ({
-        page: 1,
+        page: 0,
         sort,
         refreshQuery: !prevState.refreshQuery
       }),

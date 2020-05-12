@@ -5,8 +5,8 @@
 1. Add this repo as a git submodule in the `/packages` repository
 1. `$ meteor add lef:adminlist`
 1. Make sure the following icons are in your **fontawesome library**:
-  `faCheck, faEdit, faSearch, faSort, faSortAlphaDown, faSortAlphaUp, faSpinner, faTimes`<br>
-  (Using an [icons helper file*](#icons-helper-file) is recommended.)
+   `faCheck, faEdit, faSearch, faSort, faSortAlphaDown, faSortAlphaUp, faSpinner, faTimes`<br>
+   (Using an [icons helper file\*](#icons-helper-file) is recommended.)
 
 ## Usage
 
@@ -112,7 +112,6 @@ Provide a Meteor method to get the ids for the current query.
 Meteor.methods({ getIds: (query, params) => getItems(query, params).map(({ _id }) => _id) })
 ```
 
-
 ### Get the amount
 
 Provide a Meteor method to get a total document count.
@@ -124,14 +123,16 @@ Meteor.methods({ getTotals: (query, params) => getItems(query, params).count() }
 ### onStateChange
 
 This function is called only
+
 1. when the state of the list has changed (query, sorting, …)
 2. when the total amount of visible items is known (getTotalCall has got a result)
 
 This function receives the latest state of the list `({ page, total, sort, query, ids, ...childState })`.
 
 **Example usage:**
-* use the property total to show/hide the list and adjacent components (set state of parent component)
-* show the total amount outside the list `<h1>Users ({total})</h1>`
+
+- use the property total to show/hide the list and adjacent components (set state of parent component)
+- show the total amount outside the list `<h1>Users ({total})</h1>`
 
 ## Icons helper file
 
@@ -142,4 +143,20 @@ import { library } from '@fortawesome/fontawesome-svg-core'
 import { ...icons } from '@fortawesome/free-solid-svg-icons'
 
 library.add(...icons)
+```
+
+# Pagination
+
+The pagination component is exposed too:
+
+```JSX
+import { Pagination } from 'meteor/lef:adminlist'
+
+const Pages = props => <Pagination {...props} />
+
+Pagination.propTypes = {
+  page: PropTypes.number.isRequired, // current page number, zero-based
+  pages: PropTypes.number.isRequired, // amount of pages
+  setPage: PropTypes.func.isRequired // method to set page
+}
 ```
