@@ -84,6 +84,7 @@ const stateHasChanged = ({ page, total, sort, ...childState }) => this.setState(
   getTotalCall='totalDocs'
   // or: getTotalCall={{call:'methodName',arguments:'methodArguments'}}
   defaultQuery={{ type: 'only_show_this_type' }}
+  defaultSort={{ name: 1 }}
   remove={remove}
   edit={edit}
   extraColumns={extraColumns}

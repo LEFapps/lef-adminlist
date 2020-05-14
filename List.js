@@ -393,7 +393,7 @@ class ListContainer extends React.Component {
       total: 0,
       query: {},
       ids: null,
-      sort: {},
+      sort: this.props.defaultSort || {},
       refreshQuery: false,
       loading: false
     }
@@ -499,12 +499,13 @@ class ListContainer extends React.Component {
     }, 500)
   }
   changeSort = key => {
-    const sort = {}
+    let sort = {}
     if (this.state.sort[key]) {
       sort[key] = this.state.sort[key] * -1
     } else {
       sort[key] = 1
     }
+    if (!size(sort)) sort = this.props.defaultSort || {}
     this.setState(
       prevState => ({
         page: 0,
@@ -546,6 +547,7 @@ ListContainer.propTypes = {
   remove: PropTypes.oneOfType([PropTypes.func, PropTypes.object]),
   extraColumns: PropTypes.array,
   defaultQuery: PropTypes.object,
+  defaultSort: PropTypes.object,
   onStateChange: PropTypes.func,
   aggregate: PropTypes.bool
 }
