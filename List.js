@@ -178,7 +178,15 @@ const AdminList = props => {
                                 changeQuery
                               })
                             }
-                            placeholder={column.label || column.name}
+                            placeholder={
+                              (isFunction(column.placeholder) &&
+                                column.placeholder()) ||
+                              (isString(column.placeholder) &&
+                                column.placeholder) ||
+                              (isString(column.label)
+                                ? column.label
+                                : column.name)
+                            }
                           />
                         ) : (
                           <Input

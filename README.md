@@ -46,7 +46,8 @@ const extraColumns = [
     name: 'fullname', // used to match compact
     value: ({ firstname, lastname }) => firstname + ' ' + lastname,
     label: 'Full Name', // title of custom column
-    fields: ['firstname','lastname'] // list of fields needed for this column
+    fields: ['firstname','lastname'], // list of fields needed for this column
+    placeholder: 'must be or return a string'
   },
   {
     name: 'score',
@@ -62,7 +63,8 @@ const extraColumns = [
       Meteor.call('percentageSearch', value, (e, r) => {
         changeQuery('percentage', r) // call should return an array
       })
-    }
+    },
+    placeholder: () => 'must be or return a string'
   },
 ]
 
