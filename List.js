@@ -135,9 +135,12 @@ const AdminList = props => {
           </tr>
           <tr className={'adminlist-filters'}>
             {fields.map((field, i) => {
-              const defaultValue = defaultQuery
-                ? defaultQuery[field]
-                : undefined
+              const defaultValue =
+                defaultQuery &&
+                defaultQuery[field] &&
+                isString(defaultQuery[field])
+                  ? defaultQuery[field]
+                  : undefined
               const searchParams = { defaultValue, disabled: !!defaultValue }
               return (
                 <td key={`search-${field}`} className={compactClass(field)}>
