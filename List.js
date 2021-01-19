@@ -49,7 +49,7 @@ const displayValue = (field, value, prefix) => {
     case /\.(gif|jpg|jpeg|tiff|png)$/i.test(value):
       return (
         <img
-          src={prefix[field] + '/' + value}
+          src={prefix ? prefix[field] + '/' + value : value}
           style={{ maxWidth: '220px', maxHeight: '100px' }}
         />
       )
