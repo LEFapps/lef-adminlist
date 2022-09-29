@@ -18,7 +18,8 @@ import {
   size,
   upperFirst,
   truncate,
-  isBoolean
+  isBoolean,
+  isPlainObject
 } from 'lodash'
 
 import Pagination from './Pagination'
@@ -34,6 +35,8 @@ const defaultLimit = 20
 
 const displayValue = (field, value, prefix) => {
   switch (true) {
+    case React.isValidElement(value):
+      return value
     case isFunction(value):
       return value()
     case isBoolean(value):
@@ -45,7 +48,7 @@ const displayValue = (field, value, prefix) => {
     case isDate(value):
       return value.toDateString()
     case isArray(value):
-      return value.join(', ')
+      return value.map((v, k) => displayValue(k, v, prefix)).join(', ')
     case /\.(gif|jpg|jpeg|tiff|png)$/i.test(value):
       return (
         <img
@@ -53,6 +56,8 @@ const displayValue = (field, value, prefix) => {
           style={{ maxWidth: '220px', maxHeight: '100px' }}
         />
       )
+    case isPlainObject(value):
+      value = value.toString()
     default:
       return truncate(value, { length: 64, separator: ' ', omission: '…' })
   }
@@ -254,7 +259,7 @@ const AdminList = props => {
                           key={`${i}c-${item._id}`}
                           className={compactClass(column.name)}
                         >
-                          {column.value(item)}
+                          {displayValue('', column.value(item))}
                         </td>
                       ))
                     : null}
