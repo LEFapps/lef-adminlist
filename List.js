@@ -132,6 +132,16 @@ const AdminList = props => {
               ? columns.map((column, i) => (
                   <th key={`${i}-column`} className={compactClass(column.name)}>
                     {column.label}
+                    {!!column.fields && !!column.fields.length && (
+                      <Button
+                        onClick={() => changeSort(column.fields[0])}
+                        outline
+                        size='sm'
+                        className={'float-right'}
+                      >
+                        <FontAwesomeIcon icon={sortIcon(column.fields[0])} />
+                      </Button>
+                    )}
                   </th>
                 ))
               : null}
