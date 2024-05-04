@@ -120,7 +120,7 @@ Meteor.methods({ getIds: (query, params) => getItems(query, params).map(({ _id }
 Provide a Meteor method to get a total document count.
 
 ```JS
-Meteor.methods({ getTotals: (query, params) => getItems(query, params).count() })
+Meteor.methods({ getTotals: (query) => getItems(query, { fields: { _id: 1 }).count() })
 ```
 
 ### onStateChange

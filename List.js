@@ -449,7 +449,7 @@ class ListContainer extends React.Component {
   getIds = () => {
     const { page, query, sort } = this.state
     const { defaultQuery = {}, aggregate } = this.props
-    const params = { sort }
+    const params = { sort, fields: { _id: 1 } }
     if (!aggregate) {
       params.limit = defaultLimit
       params.skip = page * defaultLimit
