@@ -45,16 +45,20 @@ const Pagination = ({ page, pages, setPage }) => {
               <PaginationItem key={p}>
                 <PaginationLink onClick={() => setPage(p)}>
                   {p + 1}
-                  {(hellip = false)}
                 </PaginationLink>
               </PaginationItem>
             )
           } else {
-            return hellip ? null : (
-              <PaginationItem disabled key={p}>
-                <PaginationLink>&hellip;{(hellip = true)}</PaginationLink>
-              </PaginationItem>
-            )
+            if (hellip) {
+                return null
+            } else {
+                hellip = true
+                return (
+                  <PaginationItem disabled key={p}>
+                    <PaginationLink>&hellip;</PaginationLink>
+                  </PaginationItem>
+                )
+            }
           }
         })}
         {page < pages - 1 && (
